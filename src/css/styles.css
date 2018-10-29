@@ -1,0 +1,180 @@
+/** CSS Styles */
+
+.sr
+{
+	margin-right: 5px;
+}
+
+.sr1
+{
+	margin-right: 10px;
+}
+
+.sr2
+{
+	margin-right: 20px;
+}
+
+.sr25
+{
+	margin-right: 25px;
+}
+
+.sr3
+{
+	margin-right: 30px;
+}
+
+.sr5
+{
+	margin-right: 50px;
+}
+
+.sr7
+{
+	margin-right: 70px;
+}
+
+.sr10
+{
+	margin-right: 100px;
+}
+
+.sb
+{
+	margin-bottom: 5px;
+}
+
+.sb1
+{
+	margin-bottom: 10px;
+}
+
+.sb2
+{
+	margin-bottom: 20px;
+}
+
+.sb3
+{
+	margin-bottom: 30px;
+}
+
+.sb32
+{
+	margin-bottom: 32px;
+}
+
+.sb5
+{
+	margin-bottom: 50px;
+}
+
+.sb7
+{
+	margin-bottom: 70px;
+}
+
+.sb8
+{
+	margin-bottom: 80px;
+}
+
+.sb11
+{
+	margin-bottom: 110px;
+}
+
+
+.width370
+{
+	width: 370px;
+}
+
+.small_font
+{
+	font-size: 90%;
+}
+
+.nt_center_text
+{
+	text-align: center;
+	padding-right: 1.5rem;
+}
+
+.container
+{
+	max-width: 960px;
+}
+
+.table
+{
+	width: 100%;
+}
+
+.ei
+{
+	vertical-align:middle;
+	margin-top: -1px;
+	margin-left: -7px;
+	font-size: 50%;
+}
+
+body { margin: 0; }
+
+.rotate180
+{
+	transform: rotate(-180deg);
+}
+
+.hidden
+{
+	visibility: hidden;
+}
+
+.table-item
+{
+	cursor: pointer;
+}
+
+.table-item:hover
+{
+	cursor: pointer;
+	background-color: rgb(223, 105, 26);
+	color: rgb(255, 255, 255);
+}
+
+
+body { margin: 0; }
+
+#planet
+{
+	width: 256px;
+	height: 256px;
+}
+
+#render
+{
+	visibility: hidden;
+	width: 512px;
+	height: 512px;
+}
+
+#image
+{
+	display: none;
+}
+
+.flag
+{
+	width: 64px;
+	height: 64px;
+}
+
+
+
+
+
+
+
+
