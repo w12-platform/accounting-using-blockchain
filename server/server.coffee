@@ -73,14 +73,21 @@ app.post '/setrecord', (req, res)->
 app.get '/getrecords', (req, res)->
 
 	try
-		data = await eos.getTableRows
+		records = await eos.getTableRows
 			code: keys.ACCOUNT
 			scope: keys.ACCOUNT
-			table: 'records'
+			table: 'records3'
 			json: true
 			limit: 1000
 
-		res.send data
+		dict = await eos.getTableRows
+			code: keys.ACCOUNT
+			scope: keys.ACCOUNT
+			table: 'recordsdict3'
+			json: true
+			limit: 1000
+
+		res.send {records, dict}
 
 	catch err
 		log err

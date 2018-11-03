@@ -1,14 +1,21 @@
 #include <eosiolib/eosio.hpp>
+#include <eosiolib/memory.hpp>
+#include <eosiolib/stdlib.hpp>
+#include <vector>
+
 
 using namespace eosio;
 using std::string;
+using std::vector;
 
 class w12eosbook : public eosio::contract
 {
 
 public:
 
-	w12eosbook(account_name self):eosio::contract(self), records(_self, _self)
+	w12eosbook(account_name self):eosio::contract(self),
+	records3(_self, _self),
+	recordsdict3(_self, _self)
 	{
 	}
 
@@ -16,44 +23,69 @@ public:
 	// @abi action
 	void setrecord(account_name user, const uint64_t key, const std::string& data)
 	{
-		auto it = records.find(key);
+		auto it = recordsdict3.find(key);
+		auto record_key = records3.available_primary_key();
 
-		if(it == records.end())
+		if(it == recordsdict3.end())
 		{
-			records.emplace(user, [&](auto &record)
+
+			recordsdict3.emplace(user, [&](auto &item)
 			{
-				record.key = key;
-				record.owner = user;
-				record.data = data;
+				item.key = key;
+				item.owner = user;
+				item.dict.push_back(record_key);
 			});
 		}
-		else
+		if(it != recordsdict3.end())
 		{
-			records.modify(it, user, [&](auto& record)
+			recordsdict3.modify(it, user, [&](auto &item)
 			{
-				record.data = data;
+				item.dict.push_back(record_key);
 			});
 		}
+
+		records3.emplace(user, [&](auto &record)
+		{
+			record.key = record_key;
+			record.data = data;
+		});
+
+
 	}
 
 
 private:
 
-	// @abi table records i64
-	struct record_struct
+	// @abi table records3 i64
+	struct RecordStruct
 	{
 		uint64_t key;
-		account_name owner = 0;
 		std::string data;
 
 		uint64_t primary_key() const {return key;}
 
-		EOSLIB_SERIALIZE(record_struct, (key)(owner)(data))
+		EOSLIB_SERIALIZE(RecordStruct, (key)(data))
 	};
 
-	typedef eosio::multi_index<N(records), record_struct> records_table;
+	typedef eosio::multi_index<N(records3), RecordStruct> RecordsTable;
 
-	records_table records;
+	RecordsTable records3;
+
+	// @abi table recordsdict3 i64
+	struct recordsdict3
+	{
+		uint64_t key;
+		account_name owner;
+		std::vector<uint64_t> dict;
+		uint64_t primary_key() const {return key;}
+		EOSLIB_SERIALIZE(recordsdict3, (key)(owner)(dict))
+	};
+
+	typedef eosio::multi_index<N(recordsdict3), recordsdict3> RecordsDictTable;
+
+	RecordsDictTable recordsdict3;
+
+
 
 };
 

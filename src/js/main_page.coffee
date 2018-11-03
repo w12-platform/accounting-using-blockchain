@@ -32,17 +32,31 @@ MAIN_PAGE_COMPONENT =
 			<thead>
 				<tr>
 					<th>Key</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="val in dict"
+					@click="set_view(val)"
+					class="table-item">
+					<td>{{val.key}}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<table class="table">
+			<thead>
+				<tr>
 					<th>Record</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="val in records"
+				<tr v-for="val in records_view"
 					class="table-item">
-					<td>{{val.key}}</td>
 					<td>{{val.data}}</td>
 				</tr>
 			</tbody>
 		</table>
+
 
 	</div>
 
@@ -60,6 +74,9 @@ MAIN_PAGE = Vue.component 'main-page',
 		record_msg: ''
 		record_type: ''
 		records: []
+		dict: []
+		records_view: []
+
 
 
 	created: ->
@@ -71,11 +88,12 @@ MAIN_PAGE = Vue.component 'main-page',
 		return
 
 
+
 	methods:
 
 		setrecord: ->
 			try
-				res = await axios.post 'http://localhost:8080/setrecord',
+				res = await axios.post 'http://185.5.248.209:8080/setrecord',
 					key: @key
 					data: @record
 
@@ -90,9 +108,12 @@ MAIN_PAGE = Vue.component 'main-page',
 		update: ->
 
 			try
-				res = await axios.get 'http://localhost:8080/getrecords'
+				res = await axios.get 'http://185.5.248.209:8080/getrecords'
+#				res = await axios.get 'http://127.0.0.1:8080/getrecords'
 
-				@records = res.data.rows
+				@records = res.data.records.rows
+				@dict = res.data.dict.rows
+
 
 			catch err
 				log err
@@ -103,4 +124,19 @@ MAIN_PAGE = Vue.component 'main-page',
 				@update()
 			,3000
 			return
+
+
+		set_view: (record_dict)->
+
+			@records_view = []
+
+			for val in record_dict.dict
+				@records_view.push @records[val]
+
+			return
+
+
+
+
+
 

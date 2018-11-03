@@ -31,7 +31,7 @@ init = ->
 
 	try
 		contract = await eos.contract keys.ACCOUNT
-		res = await contract.setrecord keys.ACCOUNT, 121, 'ASDASDASD', {authorization:[keys.ACCOUNT]}
+		res = await contract.setrecord keys.ACCOUNT, 111, 'ASDASDASDASDASD', {authorization:[keys.ACCOUNT]}
 		log res
 	catch err
 		log err
@@ -40,24 +40,25 @@ init = ->
 #init()
 
 
-#eos.getTableRows
-#	code: keys.ACCOUNT
-#	scope: keys.ACCOUNT
-#	table: 'records'
-#	json: true
-##	lower_bound: 123
-##	upper_bound: 124
-#.then (data)=>
-#	log data
-#.catch (err)=>
-#	log err
+eos.getTableRows
+	code: keys.ACCOUNT
+	scope: keys.ACCOUNT
+	table: 'recordsdict3'
+	json: true
+#	lower_bound: 123
+#	upper_bound: 124
+.then (data)=>
+	log data
+
+.catch (err)=>
+	log err
 
 
-scan = ->
-		actions = await eos.getActions keys.ACCOUNT, 10, 1
-		log actions
-
-scan()
+#scan = ->
+#		actions = await eos.getActions keys.ACCOUNT, 10, 1
+#		log actions
+#
+#scan()
 
 
 
