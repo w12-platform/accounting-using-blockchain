@@ -49,10 +49,7 @@ public:
 			record.key = record_key;
 			record.data = data;
 		});
-
-
 	}
-
 
 private:
 
@@ -84,11 +81,7 @@ private:
 	typedef eosio::multi_index<N(recordsdict3), recordsdict3> RecordsDictTable;
 
 	RecordsDictTable recordsdict3;
-
-
-
 };
-
 
 
 EOSIO_ABI(w12eosbook, (setrecord))

@@ -28,6 +28,31 @@ MAIN_PAGE_COMPONENT =
 
 		<button class="button is-primary sb11" @click="setrecord()">Set data</button>
 
+
+		<h3 class="title is-3">SQL Database queue</h3>
+
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Record key</th>
+					<th>Data</th>
+					<th>Write flag</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="val in queue"
+					class="table-tiem">
+					<td>{{val.id}}</td>
+					<td>{{val.record_key}}</td>
+					<td>{{val.data}}</td>
+					<td>{{val.write_flag}}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3 class="title is-3">EOS Contract dictionary</h3>
+
 		<table class="table">
 			<thead>
 				<tr>
@@ -42,6 +67,8 @@ MAIN_PAGE_COMPONENT =
 				</tr>
 			</tbody>
 		</table>
+
+		<h3 class="title is-3 sb5">EOS Contract records</h3>
 
 		<table class="table">
 			<thead>
@@ -76,6 +103,7 @@ MAIN_PAGE = Vue.component 'main-page',
 		records: []
 		dict: []
 		records_view: []
+		queue: []
 
 
 
@@ -93,7 +121,8 @@ MAIN_PAGE = Vue.component 'main-page',
 
 		setrecord: ->
 			try
-				res = await axios.post 'http://185.5.248.209:8080/setrecord',
+				res = await axios.post 'http://185.5.249.203:8080/setrecord',
+#				res = await axios.post 'http://127.0.0.1:8080/setrecord',
 					key: @key
 					data: @record
 
@@ -108,16 +137,18 @@ MAIN_PAGE = Vue.component 'main-page',
 		update: ->
 
 			try
-				res = await axios.get 'http://185.5.248.209:8080/getrecords'
+				res = await axios.get 'http://185.5.249.203:8080/getrecords'
 #				res = await axios.get 'http://127.0.0.1:8080/getrecords'
 
 				@records = res.data.records.rows
 				@dict = res.data.dict.rows
 
+				res = await axios.get 'http://185.5.249.203:8080/getqueue'
+#				res = await axios.get 'http://127.0.0.1:8080/getqueue'
+				@queue = res.data
 
 			catch err
 				log err
-
 
 
 			setTimeout =>
