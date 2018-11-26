@@ -3,14 +3,13 @@ keys = require './keys.js'
 
 
 Eos = require('eosjs');
+BigNumber = require 'bignumber.js'
 
-
-NODE = 'http://jungle.cryptolions.io:18888'
 
 config =
-	chainId: '038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
+	chainId: keys.CHAIN_ID
 	keyProvider: [keys.ACTIVE_PRV]
-	httpEndpoint: NODE
+	httpEndpoint: keys.NODE
 	expireInSeconds: 60
 	broadcast: true
 	verbose: false
@@ -40,13 +39,30 @@ init = ->
 #init()
 
 
+user_id = 2
+skip = 0
+limit = 1
+
+
+user_id = BigNumber user_id
+
+low = user_id.multipliedBy('4294967296').plus skip
+up = user_id.multipliedBy('4294967296').plus '0x100000000'
+
+#	user_id = user_id.plus(123)
+#	log user_id.toString(16)[-8..]
+#	user_id = user_id.dividedToIntegerBy '4294967296'
+#	log user_id.toString()
+
+
 eos.getTableRows
 	code: keys.ACCOUNT
 	scope: keys.ACCOUNT
-	table: 'recordsdict3'
+	table: 'recordsdict5'
 	json: true
-#	lower_bound: 123
-#	upper_bound: 124
+	lower_bound: low.toString()
+	upper_bound: up.toString()
+	limit: limit
 .then (data)=>
 	log data
 

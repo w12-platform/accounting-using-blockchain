@@ -3,14 +3,14 @@ Eos = require 'eosjs'
 mysql = require 'mysql2/promise'
 cron = require 'node-cron'
 keys = require '../keys.js'
+BigNumber = require 'bignumber.js'
 
 
-NODE = 'http://jungle.cryptolions.io:18888'
 
 config =
-	chainId: '038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
+	chainId: keys.CHAIN_ID
 	keyProvider: [keys.ACTIVE_PRV]
-	httpEndpoint: NODE
+	httpEndpoint: keys.NODE
 	expireInSeconds: 60
 	broadcast: true
 	verbose: false
@@ -43,11 +43,13 @@ step = ->
 
 	if tmp[0].length > 0
 		id = tmp[0][0].id
-		key = tmp[0][0].record_key
+		key = BigNumber tmp[0][0].user_id
 		data = tmp[0][0].data
 
+		key = key.multipliedBy('4294967296').plus tmp[0][0].record_key
+
 		contract = await eos.contract keys.ACCOUNT
-		res = await contract.setrecord keys.ACCOUNT, key, data, {authorization:[keys.ACCOUNT]}
+		res = await contract.setrecord keys.ACCOUNT, key.toString(), data, {authorization:[keys.ACCOUNT]}
 
 		res = await conn.execute "UPDATE test.records SET write_flag=TRUE WHERE id=#{id}"
 

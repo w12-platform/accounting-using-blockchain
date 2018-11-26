@@ -14,8 +14,8 @@ class w12eosbook : public eosio::contract
 public:
 
 	w12eosbook(account_name self):eosio::contract(self),
-	records3(_self, _self),
-	recordsdict3(_self, _self)
+	records11(_self, _self),
+	dict11(_self, _self)
 	{
 	}
 
@@ -23,28 +23,28 @@ public:
 	// @abi action
 	void setrecord(account_name user, const uint64_t key, const std::string& data)
 	{
-		auto it = recordsdict3.find(key);
-		auto record_key = records3.available_primary_key();
+		auto it = dict11.find(key);
+		auto record_key = records11.available_primary_key();
 
-		if(it == recordsdict3.end())
+		if(it == dict11.end())
 		{
 
-			recordsdict3.emplace(user, [&](auto &item)
+			dict11.emplace(user, [&](auto &item)
 			{
 				item.key = key;
 				item.owner = user;
 				item.dict.push_back(record_key);
 			});
 		}
-		if(it != recordsdict3.end())
+		if(it != dict11.end())
 		{
-			recordsdict3.modify(it, user, [&](auto &item)
+			dict11.modify(it, user, [&](auto &item)
 			{
 				item.dict.push_back(record_key);
 			});
 		}
 
-		records3.emplace(user, [&](auto &record)
+		records11.emplace(user, [&](auto &record)
 		{
 			record.key = record_key;
 			record.data = data;
@@ -53,7 +53,7 @@ public:
 
 private:
 
-	// @abi table records3 i64
+	// @abi table records11 i64
 	struct RecordStruct
 	{
 		uint64_t key;
@@ -64,25 +64,57 @@ private:
 		EOSLIB_SERIALIZE(RecordStruct, (key)(data))
 	};
 
-	typedef eosio::multi_index<N(records3), RecordStruct> RecordsTable;
+	typedef eosio::multi_index<N(records11), RecordStruct> RecordsTable;
 
-	RecordsTable records3;
+	RecordsTable records11;
 
-	// @abi table recordsdict3 i64
-	struct recordsdict3
+	// @abi table dict11 i64
+	struct dict11
 	{
 		uint64_t key;
 		account_name owner;
 		std::vector<uint64_t> dict;
 		uint64_t primary_key() const {return key;}
-		EOSLIB_SERIALIZE(recordsdict3, (key)(owner)(dict))
+		EOSLIB_SERIALIZE(dict11, (key)(owner)(dict))
 	};
 
-	typedef eosio::multi_index<N(recordsdict3), recordsdict3> RecordsDictTable;
+	typedef eosio::multi_index<N(dict11), dict11> RecordsDictTable;
 
-	RecordsDictTable recordsdict3;
+	RecordsDictTable dict11;
 };
 
 
 EOSIO_ABI(w12eosbook, (setrecord))
+
+
+//private:
+//
+//// @abi table records11 i64
+//struct RecordStruct
+//{
+//	uint64_t key;
+//	uint64_t user_id;
+//	uint64_t history_id;
+//
+//	uint64_t history_len;
+//	std::string data;
+//
+//	uint64_t primary_key() const {return key;}
+//	uint64_t get_user_id() const {return user_id;}
+//	uint64_t get_history_id() const {return history_id;}
+//
+//	EOSLIB_SERIALIZE(RecordStruct, (key)(user_id)(history_id)(history_len)(data))
+//};
+//
+//
+//
+//typedef multi_index<N(RecordStruct), RecordStruct,
+//		indexed_by<N(user_id), const_mem_fun<RecordStruct, uint64_t, &RecordStruct::get_user_id>>,
+//indexed_by<N(history_id), const_mem_fun<RecordStruct, uint64_t, &RecordStruct::get_history_id>>
+//> Records;
+//
+//
+//Records records11;
+//};
+
 

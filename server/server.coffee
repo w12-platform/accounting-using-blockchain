@@ -8,13 +8,13 @@ Eos = require 'eosjs'
 
 mysql = require 'mysql2/promise'
 
+BigNumber = require 'bignumber.js'
 
-NODE = 'http://jungle.cryptolions.io:18888'
 
 config =
-	chainId: '038f4b0fc8ff18a4f0842a8f0564611f6e96e8535901dd45e43ac8691a1c4dca'
+	chainId: keys.CHAIN_ID
 	keyProvider: [keys.ACTIVE_PRV]
-	httpEndpoint: NODE
+	httpEndpoint: keys.NODE
 	expireInSeconds: 60
 	broadcast: true
 	verbose: false
@@ -49,18 +49,14 @@ app.use (err, req, res, next)->
 	return
 
 
-app.post '/setrecord', (req, res)->
-
+app.post '/setRecord', (req, res)->
 
 	try
 		key = parseInt req.body.key
 		return if key is NaN or key < 0
 
-		if req.body.sub_key
-			sub_key = parseInt req.body.sub_key
-			return if sub_key is NaN or sub_key < 0
-		else
-			sub_key = 'NULL'
+		user_id = parseInt req.body.user_id
+		return if user_id is NaN or user_id < 0
 
 		return unless req.body.data
 
@@ -72,12 +68,10 @@ app.post '/setrecord', (req, res)->
 			password: keys.DB_PASSWORD
 			database: 'test'
 
-		tmp = await conn.execute "INSERT INTO test.records (record_key, data, write_flag) VALUES(#{key}, '#{req.body.data}', FALSE)"
+		tmp = await conn.execute "INSERT INTO test.records (record_key, user_id, data, write_flag, blockchain)
+		VALUES(#{key}, #{user_id}, '#{req.body.data}', FALSE, 'a')"
 
 		conn.close()
-
-#		contract = await eos.contract keys.ACCOUNT
-#		res = await contract.setrecord keys.ACCOUNT, key, req.body.data, {authorization:[keys.ACCOUNT]}
 
 	catch err
 		log err
@@ -90,20 +84,20 @@ app.post '/setrecord', (req, res)->
 	return
 
 
-app.get '/getrecords', (req, res)->
+app.get '/getRecords', (req, res)->
 
 	try
 		records = await eos.getTableRows
 			code: keys.ACCOUNT
 			scope: keys.ACCOUNT
-			table: 'records3'
+			table: 'records11'
 			json: true
 			limit: 1000
 
 		dict = await eos.getTableRows
 			code: keys.ACCOUNT
 			scope: keys.ACCOUNT
-			table: 'recordsdict3'
+			table: 'dict11'
 			json: true
 			limit: 1000
 
@@ -115,20 +109,86 @@ app.get '/getrecords', (req, res)->
 	return
 
 
-app.get '/getqueue', (req, res)->
+app.get '/getQueue', (req, res)->
 
 	try
+
 		conn = await mysql.createConnection
 			host:'127.0.0.1'
 			user: 'root'
 			password: keys.DB_PASSWORD
 			database: 'test'
 
-		tmp = await conn.execute "SELECT * FROM test.records WHERE write_flag=FALSE"
+		tmp = await conn.execute "SELECT * FROM test.records"
 
 		conn.close()
 
 		res.send tmp[0]
+
+	catch err
+		log err
+
+	return
+
+
+app.get '/getUserRecords', (req, res)->
+
+	try
+
+		user_id = parseInt req.query.user_id
+		start_key = parseInt req.query.start_key
+		limit = parseInt req.query.limit
+
+		if isNaN user_id
+			res.send {'error': 'wrong user id'}
+			return
+
+		if user_id < 0
+			res.send {'error': 'wrong user id'}
+			return
+
+		start_key = 0 if isNaN start_key
+		start_key = 0 if start_key < 0
+
+		limit = 10 if isNaN limit
+		limit = 10 if limit < 0
+
+		user_id = BigNumber user_id
+
+		low = user_id.multipliedBy('4294967296').plus start_key
+		up = user_id.multipliedBy('4294967296').plus '0x100000000'
+
+		dict = await eos.getTableRows
+			code: keys.ACCOUNT
+			scope: keys.ACCOUNT
+			table: 'dict11'
+			json: true
+			lower_bound: low.toString()
+			upper_bound: up.toString()
+			limit: limit
+
+		data = {more: dict.more, rows: []}
+
+		for val in dict.rows
+			key = BigNumber val.key
+			key = key.dividedToIntegerBy '4294967296'
+
+			arr = []
+
+			for id in val.dict
+				record = await eos.getTableRows
+					code: keys.ACCOUNT
+					scope: keys.ACCOUNT
+					table: 'records11'
+					json: true
+					lower_bound: id
+					upper_bound: id + 1
+					limit: 1
+				arr.push record.rows[0].data
+
+			data.rows.push {key: key.toString(), data: arr}
+
+		res.send data
 
 	catch err
 		log err
@@ -175,18 +235,23 @@ app.get '/getqueue', (req, res)->
 # CREATE TABLE test.records(
 # 	`id` INT(11) NOT NULL AUTO_INCREMENT,
 # 	`record_key` INT(11) NOT NULL,
+# 	`user_id` INT(11) NOT NULL,
 # 	`data` CHAR(128) NOT NULL,
 # 	`write_flag` BOOL NOT NULL,
+# 	`blockchain` CHAR(1) NOT NULL,
 # 	PRIMARY KEY(`id`)
 # );
 
-# ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY ''
+# ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '78DnW946U9r726oBuga6'
 
 # SELECT user, host FROM mysql.user;
 
 # select * from test.records;
-
 # drop table test.records;
+
+
+
+
 
 
 
