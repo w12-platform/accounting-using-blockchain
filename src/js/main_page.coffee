@@ -81,7 +81,6 @@ MAIN_PAGE_COMPONENT =
 			</thead>
 			<tbody>
 				<tr v-for="val in records_getuserrecords"
-					@click="set_view(val)"
 					class="table-item">
 					<td>{{val.key}}</td>
 					<td>{{val.data}}</td>
@@ -91,7 +90,8 @@ MAIN_PAGE_COMPONENT =
 
 
 
-		<h3 class="title is-3">Get record</h3>
+
+		<h3 class="title is-3 sa11">Get record</h3>
 
 		<div class="sb3">
 			<b-field label="User id - 32 bit integer >= 0">
@@ -117,7 +117,95 @@ MAIN_PAGE_COMPONENT =
 		<h3 class="title is-3">Record {{records_getrecord}}</h3>
 
 
-		<h3 class="title is-3">SQL Database</h3>
+
+
+
+
+		<h3 class="title is-3 sa11">Get record history</h3>
+
+		<div class="sb3">
+			<b-field label="User id - 32 bit integer >= 0">
+				<b-input
+					v-model="id_getrecord"
+					placeholder="123">
+				</b-input>
+			</b-field>
+		</div>
+
+		<div class="sb3">
+			<b-field label="Key - 32 bit integer >= 0, required">
+				<b-input
+					v-model="key_getrecord"
+					placeholder="0">
+				</b-input>
+			</b-field>
+		</div>
+
+		<button class="button is-primary sb3" @click="get_record_history()">Get record history</button>
+
+
+		<h3 class="title is-3">Record history</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Data</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="val in records_getrecordhistory"
+					class="table-item">
+					<td>{{val}}</td>
+				</tr>
+			</tbody>
+		</table>
+
+
+
+
+
+
+
+
+		<h3 class="title is-3 sa11">Get records batch</h3>
+
+		<div class="sb3">
+			<b-field label="User id - 32 bit integer >= 0">
+				<b-input
+					v-model="id_getrecordsbatch"
+					placeholder="123">
+				</b-input>
+			</b-field>
+		</div>
+
+		<div class="sb3">
+			<b-field label="Sequence of keys - 32 bit integer >= 0, max sequence length = 128, required">
+				<b-input
+					v-model="key_getrecordsbatch"
+					placeholder="0,1">
+				</b-input>
+			</b-field>
+		</div>
+
+		<button class="button is-primary sb3" @click="get_records_batch()">Get records batch</button>
+
+		<h3 class="title is-3">Records batch</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Key</th>
+					<th>Data</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="val in records_getrecordsbatch"
+					class="table-item">
+					<td>{{val.key}}</td>
+					<td>{{val.data}}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h3 class="title is-3 sa11">SQL Database</h3>
 
 		<table class="table">
 			<thead>
@@ -162,9 +250,13 @@ MAIN_PAGE = Vue.component 'main-page',
 		key_getrecord: 0
 		id_getrecord: 0
 		records_getrecord: ''
-
+		key_getrecordhistory: 0
+		id_getrecordhistory: 0
+		records_getrecordhistory: []
+		key_getrecordsbatch: '0,1'
+		id_getrecordsbatch: 0
+		records_getrecordsbatch: []
 		queue: []
-
 
 
 	created: ->
@@ -174,7 +266,6 @@ MAIN_PAGE = Vue.component 'main-page',
 	mounted: ->
 		@update()
 		return
-
 
 
 	methods:
@@ -198,8 +289,8 @@ MAIN_PAGE = Vue.component 'main-page',
 #				res = await axios.get 'http://185.5.249.203:8080/getUserRecords',
 				res = await axios.get 'http://127.0.0.1:8080/getUserRecords',
 					params:
-						user_id: @user_id
-						start_key: @key
+						user_id: @id_getuserrecords
+						start_key: @key_getuserrecords
 
 				@records_getuserrecords = res.data.rows
 
@@ -211,14 +302,49 @@ MAIN_PAGE = Vue.component 'main-page',
 
 		get_record: ->
 			try
-#				res = await axios.get 'http://185.5.249.203:8080/getUserRecords',
+#				res = await axios.get 'http://185.5.249.203:8080/getRecord',
 				res = await axios.get 'http://127.0.0.1:8080/getRecord',
 					params:
-						user_id: @user_id
-						key: @key
+						user_id: @id_getrecord
+						key: @key_getrecord
 
 
 				@records_getrecord = res.data.data
+
+			catch err
+				log err
+
+			return
+
+
+		get_record_history: ->
+			try
+#				res = await axios.get 'http://185.5.249.203:8080/getRecordHistory',
+				res = await axios.get 'http://127.0.0.1:8080/getRecordHistory',
+					params:
+						user_id: @id_getrecordhistory
+						key: @key_getrecordhistory
+
+				log res.data
+
+
+				@records_getrecordhistory = res.data.data
+
+			catch err
+				log err
+
+			return
+
+
+		get_records_batch: ->
+			try
+#				res = await axios.get 'http://185.5.249.203:8080/getRecordsBatch',
+				res = await axios.get 'http://127.0.0.1:8080/getRecordsBatch',
+					params:
+						user_id: @id_getrecordsbatch
+						keys: @key_getrecordsbatch
+
+				@records_getrecordsbatch = res.data
 
 			catch err
 				log err
@@ -243,19 +369,3 @@ MAIN_PAGE = Vue.component 'main-page',
 				@update()
 			,3000
 			return
-
-
-		set_view: (record_dict)->
-
-			@records_view = []
-
-			for val in record_dict.dict
-				@records_view.push @records[val]
-
-			return
-
-
-
-
-
-
