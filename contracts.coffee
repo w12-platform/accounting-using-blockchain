@@ -30,24 +30,24 @@ init = ->
 
 	try
 		contract = await eos.contract keys.ACCOUNT
-		res = await contract.setrecord keys.ACCOUNT, 111, 'ASDASDASDASDASD', {authorization:[keys.ACCOUNT]}
+		res = await contract.setrecord keys.ACCOUNT, 1001, 'ASDASDASDASDASD2', {authorization:[keys.ACCOUNT]}
 		log res
 	catch err
 		log err
 
 
-#init()
+init()
 
 
-user_id = 2
-skip = 0
-limit = 1
-
-
-user_id = BigNumber user_id
-
-low = user_id.multipliedBy('4294967296').plus skip
-up = user_id.multipliedBy('4294967296').plus '0x100000000'
+#user_id = 2
+#skip = 0
+#limit = 10
+#
+#
+#user_id = BigNumber user_id
+#
+#low = user_id.multipliedBy('4294967296').plus skip
+#up = user_id.multipliedBy('4294967296').plus '0x100000000'
 
 #	user_id = user_id.plus(123)
 #	log user_id.toString(16)[-8..]
@@ -58,13 +58,11 @@ up = user_id.multipliedBy('4294967296').plus '0x100000000'
 eos.getTableRows
 	code: keys.ACCOUNT
 	scope: keys.ACCOUNT
-	table: 'recordsdict5'
+	table: 'records12c'
 	json: true
-	lower_bound: low.toString()
-	upper_bound: up.toString()
-	limit: limit
 .then (data)=>
 	log data
+	log data.rows.length
 
 .catch (err)=>
 	log err

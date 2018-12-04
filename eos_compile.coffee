@@ -1,7 +1,7 @@
 shell = require 'shelljs'
 
 
-dir = process.argv[2]
+dir = '/Users/gauss/_games/eosdev'
 run = shell.exec
 
 

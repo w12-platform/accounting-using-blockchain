@@ -7,9 +7,7 @@ MAIN_PAGE_COMPONENT =
 
 		<div class="sb3">
 			<b-field
-				:message="key_msg"
-				label="Key - 32 bit integer > 0"
-				:type="key_type">
+				label="Key - 32 bit integer >= 0">
 				<b-input
 					v-model="key"
 					placeholder="123">
@@ -19,7 +17,7 @@ MAIN_PAGE_COMPONENT =
 
 
 		<div class="sb3">
-			<b-field label="User id - 32 bit integer > 0">
+			<b-field label="User id - 32 bit integer >= 0">
 				<b-input
 					v-model="user_id"
 					placeholder="123">
@@ -29,9 +27,7 @@ MAIN_PAGE_COMPONENT =
 
 		<div class="sb3">
 			<b-field
-				:message="record_msg"
-				label="Record"
-				:type="record_type">
+				label="Record">
 				<b-input
 					v-model="record"
 					placeholder="asdasdasd">
@@ -39,24 +35,24 @@ MAIN_PAGE_COMPONENT =
 			</b-field>
 		</div>
 
-		<button class="button is-primary sb11" @click="set_record()">Set data</button>
+		<button class="button is-primary sb11" @click="set_record">Set data</button>
 
 
 		<h3 class="title is-3">Get user records</h3>
 
 		<div class="sb3">
-			<b-field label="User id - 32 bit integer > 0">
+			<b-field label="User id - 32 bit integer >= 0">
 				<b-input
-					v-model="user_id"
+					v-model="id_getuserrecords"
 					placeholder="123">
 				</b-input>
 			</b-field>
 		</div>
 
 		<div class="sb3">
-			<b-field label="Start key - 32 bit integer > 0, not required, default 0">
+			<b-field label="Start key - 32 bit integer >= 0, not required, default 0">
 				<b-input
-					v-model="start_key"
+					v-model="key_getuserrecords"
 					placeholder="0">
 				</b-input>
 			</b-field>
@@ -65,7 +61,7 @@ MAIN_PAGE_COMPONENT =
 		<div class="sb3">
 			<b-field label="Limit - integer > 0, not required, default 10">
 				<b-input
-					v-model="limit"
+					v-model="limit_getuserrecords"
 					placeholder="10">
 				</b-input>
 			</b-field>
@@ -84,7 +80,7 @@ MAIN_PAGE_COMPONENT =
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="val in records"
+				<tr v-for="val in records_getuserrecords"
 					@click="set_view(val)"
 					class="table-item">
 					<td>{{val.key}}</td>
@@ -92,6 +88,33 @@ MAIN_PAGE_COMPONENT =
 				</tr>
 			</tbody>
 		</table>
+
+
+
+		<h3 class="title is-3">Get record</h3>
+
+		<div class="sb3">
+			<b-field label="User id - 32 bit integer >= 0">
+				<b-input
+					v-model="id_getrecord"
+					placeholder="123">
+				</b-input>
+			</b-field>
+		</div>
+
+		<div class="sb3">
+			<b-field label="Key - 32 bit integer >= 0, required">
+				<b-input
+					v-model="key_getrecord"
+					placeholder="0">
+				</b-input>
+			</b-field>
+		</div>
+
+		<button class="button is-primary sb3" @click="get_record()">Get record</button>
+
+
+		<h3 class="title is-3">Record {{records_getrecord}}</h3>
 
 
 		<h3 class="title is-3">SQL Database</h3>
@@ -130,15 +153,16 @@ MAIN_PAGE = Vue.component 'main-page',
 	data: =>
 		login: DATA.login
 		key: 0
-		key_msg: ''
-		key_type: ''
 		user_id: 0
-		start_key: 0
-		limit: 10
 		record: 'asdasdasd'
-		record_msg: ''
-		record_type: ''
-		records: []
+		key_getuserrecords: 0
+		id_getuserrecords: 0
+		limit_getuserrecords: 10
+		records_getuserrecords: []
+		key_getrecord: 0
+		id_getrecord: 0
+		records_getrecord: ''
+
 		queue: []
 
 
@@ -157,13 +181,27 @@ MAIN_PAGE = Vue.component 'main-page',
 
 		set_record: ->
 			try
-				res = await axios.post 'http://185.5.249.203:8080/setRecord',
-#				res = await axios.post 'http://127.0.0.1:8080/setRecord',
+#				res = await axios.post 'http://185.5.249.203:8080/setRecord',
+				res = await axios.post 'http://127.0.0.1:8080/setRecord',
 					key: @key
 					user_id: @user_id
 					data: @record
-
 				log res
+			catch err
+				log err
+			return
+
+
+
+		get_user_records: ->
+			try
+#				res = await axios.get 'http://185.5.249.203:8080/getUserRecords',
+				res = await axios.get 'http://127.0.0.1:8080/getUserRecords',
+					params:
+						user_id: @user_id
+						start_key: @key
+
+				@records_getuserrecords = res.data.rows
 
 			catch err
 				log err
@@ -171,16 +209,16 @@ MAIN_PAGE = Vue.component 'main-page',
 			return
 
 
-		get_user_records: ->
+		get_record: ->
 			try
-				res = await axios.get 'http://185.5.249.203:8080/getUserRecords',
-#				res = await axios.get 'http://127.0.0.1:8080/getUserRecords',
+#				res = await axios.get 'http://185.5.249.203:8080/getUserRecords',
+				res = await axios.get 'http://127.0.0.1:8080/getRecord',
 					params:
 						user_id: @user_id
-						start_key: @start_key
-						limit: @limit
+						key: @key
 
-				@records = res.data.rows
+
+				@records_getrecord = res.data.data
 
 			catch err
 				log err
@@ -193,8 +231,8 @@ MAIN_PAGE = Vue.component 'main-page',
 		update: ->
 
 			try
-				res = await axios.get 'http://185.5.249.203:8080/getQueue'
-#				res = await axios.get 'http://127.0.0.1:8080/getQueue'
+#				res = await axios.get 'http://185.5.249.203:8080/getQueue'
+				res = await axios.get 'http://127.0.0.1:8080/getQueue'
 				@queue = res.data
 
 			catch err

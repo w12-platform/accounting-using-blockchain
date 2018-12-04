@@ -84,31 +84,6 @@ app.post '/setRecord', (req, res)->
 	return
 
 
-app.get '/getRecords', (req, res)->
-
-	try
-		records = await eos.getTableRows
-			code: keys.ACCOUNT
-			scope: keys.ACCOUNT
-			table: 'records11'
-			json: true
-			limit: 1000
-
-		dict = await eos.getTableRows
-			code: keys.ACCOUNT
-			scope: keys.ACCOUNT
-			table: 'dict11'
-			json: true
-			limit: 1000
-
-		res.send {records, dict}
-
-	catch err
-		log err
-
-	return
-
-
 app.get '/getQueue', (req, res)->
 
 	try
@@ -155,8 +130,145 @@ app.get '/getUserRecords', (req, res)->
 
 		user_id = BigNumber user_id
 
-		low = user_id.multipliedBy('4294967296').plus start_key
-		up = user_id.multipliedBy('4294967296').plus '0x100000000'
+		low = user_id.times('4294967296').plus start_key
+		up = user_id.times('4294967296').plus '0x100000000'
+
+		dict = await eos.getTableRows
+			code: keys.ACCOUNT
+			scope: keys.ACCOUNT
+			table: 'dict11a'
+			json: true
+			lower_bound: low.toString()
+			upper_bound: up.toString()
+			limit: limit
+
+		data = {more: dict.more, rows: []}
+
+		for val in dict.rows
+			key = BigNumber val.key
+
+			key = key.mod '4294967295'
+
+			id = val.dict[val.dict.length - 1]
+
+			record = await eos.getTableRows
+				code: keys.ACCOUNT
+				scope: keys.ACCOUNT
+				table: 'records11a'
+				json: true
+				lower_bound: id
+				upper_bound: id + 1
+				limit: 1
+
+			data.rows.push {key: key.toString(), data: record.rows[0].data}
+
+		res.send data
+
+	catch err
+		log err
+
+	return
+
+
+app.get '/getRecord', (req, res)->
+
+	try
+
+		user_id = parseInt req.query.user_id
+		key = parseInt req.query.key
+
+		if isNaN user_id
+			res.send {'error': 'wrong user id'}
+			return
+
+		if user_id < 0
+			res.send {'error': 'wrong user id'}
+			return
+
+		if isNaN key
+			res.send {'error': 'wrong user id'}
+			return
+
+		if key < 0
+			res.send {'error': 'wrong key'}
+			return
+
+		user_id = BigNumber user_id
+
+		low = user_id.times('4294967296').plus key
+		up = low.plus 1
+
+		dict = await eos.getTableRows
+			code: keys.ACCOUNT
+			scope: keys.ACCOUNT
+			table: 'dict11a'
+			json: true
+			lower_bound: low.toString()
+			upper_bound: up.toString()
+			limit: 1
+
+		if dict.rows.length > 0
+			row = dict.rows[dict.rows.length - 1]
+
+			data = {more: dict.more, rows: []}
+
+			key = BigNumber row.key
+			key = key.mod '4294967296'
+
+			id = row.dict[row.dict.length - 1]
+
+			record = await eos.getTableRows
+				code: keys.ACCOUNT
+				scope: keys.ACCOUNT
+				table: 'records11a'
+				json: true
+				lower_bound: id
+				upper_bound: id + 1
+				limit: 1
+
+			data = {key: key.toString(), data: record.rows[0].data}
+
+
+		else
+			res.send {'error': 'no data'}
+
+			return
+
+
+
+		res.send data
+
+	catch err
+		log err
+
+	return
+
+
+app.get '/getRecordHistory', (req, res)->
+
+	try
+
+		user_id = parseInt req.query.user_id
+		key = parseInt req.query.key
+
+		if isNaN user_id
+			res.send {'error': 'wrong user id'}
+			return
+
+		if user_id < 0
+			res.send {'error': 'wrong user id'}
+			return
+
+		key = 0 if isNaN key
+		key = 0 if key < 0
+
+		limit = 10 if isNaN limit
+		limit = 10 if limit < 0
+
+		user_id = BigNumber user_id
+
+		low = user_id.multipliedBy('4294967296').plus key
+		up = low.plus 1
 
 		dict = await eos.getTableRows
 			code: keys.ACCOUNT
@@ -167,7 +279,7 @@ app.get '/getUserRecords', (req, res)->
 			upper_bound: up.toString()
 			limit: limit
 
-		data = {more: dict.more, rows: []}
+		data = {}
 
 		for val in dict.rows
 			key = BigNumber val.key
@@ -194,6 +306,7 @@ app.get '/getUserRecords', (req, res)->
 		log err
 
 	return
+
 
 
 

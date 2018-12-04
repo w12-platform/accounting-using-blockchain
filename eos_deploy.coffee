@@ -2,7 +2,7 @@ shell = require 'shelljs'
 keys = require './keys'
 
 
-dir = process.argv[2]
+dir = '/Users/gauss/_games/eosdev'
 run = shell.exec
 
 cleos = "docker exec eosdev_wallet /opt/eosio/bin/cleos -u #{keys.NODE} --wallet-url http://127.0.0.1:8888"

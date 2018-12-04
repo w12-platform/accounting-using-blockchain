@@ -14,8 +14,8 @@ class w12eosbook : public eosio::contract
 public:
 
 	w12eosbook(account_name self):eosio::contract(self),
-	records11(_self, _self),
-	dict11(_self, _self)
+	records11a(_self, _self),
+	dict11a(_self, _self)
 	{
 	}
 
@@ -23,28 +23,27 @@ public:
 	// @abi action
 	void setrecord(account_name user, const uint64_t key, const std::string& data)
 	{
-		auto it = dict11.find(key);
-		auto record_key = records11.available_primary_key();
+		auto it = dict11a.find(key);
+		auto record_key = records11a.available_primary_key();
 
-		if(it == dict11.end())
+		if(it == dict11a.end())
 		{
 
-			dict11.emplace(user, [&](auto &item)
+			dict11a.emplace(user, [&](auto &item)
 			{
 				item.key = key;
-				item.owner = user;
 				item.dict.push_back(record_key);
 			});
 		}
-		if(it != dict11.end())
+		if(it != dict11a.end())
 		{
-			dict11.modify(it, user, [&](auto &item)
+			dict11a.modify(it, user, [&](auto &item)
 			{
 				item.dict.push_back(record_key);
 			});
 		}
 
-		records11.emplace(user, [&](auto &record)
+		records11a.emplace(user, [&](auto &record)
 		{
 			record.key = record_key;
 			record.data = data;
@@ -53,7 +52,7 @@ public:
 
 private:
 
-	// @abi table records11 i64
+	// @abi table records11a i64
 	struct RecordStruct
 	{
 		uint64_t key;
@@ -64,23 +63,22 @@ private:
 		EOSLIB_SERIALIZE(RecordStruct, (key)(data))
 	};
 
-	typedef eosio::multi_index<N(records11), RecordStruct> RecordsTable;
+	typedef multi_index<N(records11a), RecordStruct> RecordsTable;
 
-	RecordsTable records11;
+	RecordsTable records11a;
 
-	// @abi table dict11 i64
-	struct dict11
+	// @abi table dict11a i64
+	struct DictStruct
 	{
 		uint64_t key;
-		account_name owner;
 		std::vector<uint64_t> dict;
 		uint64_t primary_key() const {return key;}
-		EOSLIB_SERIALIZE(dict11, (key)(owner)(dict))
+		EOSLIB_SERIALIZE(DictStruct, (key)(dict))
 	};
 
-	typedef eosio::multi_index<N(dict11), dict11> RecordsDictTable;
+	typedef multi_index<N(dict11a), DictStruct> RecordsDictTable;
 
-	RecordsDictTable dict11;
+	RecordsDictTable dict11a;
 };
 
 
@@ -89,7 +87,7 @@ EOSIO_ABI(w12eosbook, (setrecord))
 
 //private:
 //
-//// @abi table records11 i64
+//// @abi table records11a i64
 //struct RecordStruct
 //{
 //	uint64_t key;
@@ -114,7 +112,55 @@ EOSIO_ABI(w12eosbook, (setrecord))
 //> Records;
 //
 //
-//Records records11;
+//Records records11a;
 //};
+
+//void setrecord(account_name user, const uint64_t key, const uint64_t basekey, const uint64_t len, const std::string& data)
+//{
+//	auto base_it = records12j.find(basekey);
+//	auto it = records12j.find(key);
+//
+//	if(base_it == records12j.end() && key == basekey)
+//	{
+//		records12j.emplace(user, [&](auto &item)
+//		{
+//			item.key = key;
+//			item.len = 0;
+//			item.data = data;
+//		});
+//	}
+//	if(base_it != records12j.end() && base_it == records12j.end())
+//	{
+//		records12j.emplace(user, [&](auto &item)
+//		{
+//			item.key = key;
+//			item.len = 0;
+//			item.data = data;
+//		});
+//	}
+//
+//}
+//
+//private:
+//
+//// @abi table records12j i64
+//struct RecordStruct
+//{
+//	uint64_t key;
+//	uint64_t len;
+//	std::string data;
+//
+//	uint64_t primary_key() const {return key;}
+//	EOSLIB_SERIALIZE(RecordStruct, (key)(len)(data))
+//};
+//
+//typedef multi_index<N(records12j), RecordStruct> Records;
+//
+//Records records12j;
+//
+//};
+//
+//EOSIO_ABI(w12eosbook, (setrecord))
+
 
 
