@@ -14,8 +14,7 @@ class w12eosbook : public eosio::contract
 public:
 
 	w12eosbook(account_name self):eosio::contract(self),
-	records11a(_self, _self),
-	dict11a(_self, _self)
+	records11c(_self, _self)
 	{
 	}
 
@@ -23,71 +22,40 @@ public:
 	// @abi action
 	void setrecord(account_name user, const uint64_t key, const std::string& data)
 	{
-		auto it = dict11a.find(key);
-		auto record_key = records11a.available_primary_key();
+		auto it = records11c.find(key);
 
-		if(it == dict11a.end())
+		if(it == records11c.end())
 		{
 
-			dict11a.emplace(user, [&](auto &item)
+			records11c.emplace(user, [&](auto &item)
 			{
 				item.key = key;
-				item.dict.push_back(record_key);
+				item.data = data;
 			});
 		}
-		if(it != dict11a.end())
-		{
-			dict11a.modify(it, user, [&](auto &item)
-			{
-				item.dict.push_back(record_key);
-			});
-		}
-
-		records11a.emplace(user, [&](auto &record)
-		{
-			record.key = record_key;
-			record.data = data;
-		});
 	}
 
 private:
 
-	// @abi table records11a i64
+	// @abi table records11c i64
 	struct RecordStruct
 	{
 		uint64_t key;
 		std::string data;
-
 		uint64_t primary_key() const {return key;}
-
 		EOSLIB_SERIALIZE(RecordStruct, (key)(data))
 	};
 
-	typedef multi_index<N(records11a), RecordStruct> RecordsTable;
+	typedef multi_index<N(records11c), RecordStruct> RecordsTable;
 
-	RecordsTable records11a;
-
-	// @abi table dict11a i64
-	struct DictStruct
-	{
-		uint64_t key;
-		std::vector<uint64_t> dict;
-		uint64_t primary_key() const {return key;}
-		EOSLIB_SERIALIZE(DictStruct, (key)(dict))
-	};
-
-	typedef multi_index<N(dict11a), DictStruct> RecordsDictTable;
-
-	RecordsDictTable dict11a;
+	RecordsTable records11c;
 };
-
 
 EOSIO_ABI(w12eosbook, (setrecord))
 
-
 //private:
 //
-//// @abi table records11a i64
+//// @abi table records11c i64
 //struct RecordStruct
 //{
 //	uint64_t key;
@@ -112,7 +80,7 @@ EOSIO_ABI(w12eosbook, (setrecord))
 //> Records;
 //
 //
-//Records records11a;
+//Records records11c;
 //};
 
 //void setrecord(account_name user, const uint64_t key, const uint64_t basekey, const uint64_t len, const std::string& data)

@@ -272,8 +272,8 @@ MAIN_PAGE = Vue.component 'main-page',
 
 		set_record: ->
 			try
-#				res = await axios.post 'http://185.5.249.203:8080/setRecord',
-				res = await axios.post 'http://127.0.0.1:8080/setRecord',
+				res = await axios.post 'http://185.5.249.203:8080/setRecord',
+#				res = await axios.post 'http://127.0.0.1:8080/setRecord',
 					key: @key
 					user_id: @user_id
 					data: @record
@@ -286,8 +286,8 @@ MAIN_PAGE = Vue.component 'main-page',
 
 		get_user_records: ->
 			try
-#				res = await axios.get 'http://185.5.249.203:8080/getUserRecords',
-				res = await axios.get 'http://127.0.0.1:8080/getUserRecords',
+				res = await axios.get 'http://185.5.249.203:8080/getUserRecords',
+#				res = await axios.get 'http://127.0.0.1:8080/getUserRecords',
 					params:
 						user_id: @id_getuserrecords
 						start_key: @key_getuserrecords
@@ -302,8 +302,8 @@ MAIN_PAGE = Vue.component 'main-page',
 
 		get_record: ->
 			try
-#				res = await axios.get 'http://185.5.249.203:8080/getRecord',
-				res = await axios.get 'http://127.0.0.1:8080/getRecord',
+				res = await axios.get 'http://185.5.249.203:8080/getRecord',
+#				res = await axios.get 'http://127.0.0.1:8080/getRecord',
 					params:
 						user_id: @id_getrecord
 						key: @key_getrecord
@@ -319,8 +319,8 @@ MAIN_PAGE = Vue.component 'main-page',
 
 		get_record_history: ->
 			try
-#				res = await axios.get 'http://185.5.249.203:8080/getRecordHistory',
-				res = await axios.get 'http://127.0.0.1:8080/getRecordHistory',
+				res = await axios.get 'http://185.5.249.203:8080/getRecordHistory',
+#				res = await axios.get 'http://127.0.0.1:8080/getRecordHistory',
 					params:
 						user_id: @id_getrecordhistory
 						key: @key_getrecordhistory
@@ -338,8 +338,8 @@ MAIN_PAGE = Vue.component 'main-page',
 
 		get_records_batch: ->
 			try
-#				res = await axios.get 'http://185.5.249.203:8080/getRecordsBatch',
-				res = await axios.get 'http://127.0.0.1:8080/getRecordsBatch',
+				res = await axios.get 'http://185.5.249.203:8080/getRecordsBatch',
+#				res = await axios.get 'http://127.0.0.1:8080/getRecordsBatch',
 					params:
 						user_id: @id_getrecordsbatch
 						keys: @key_getrecordsbatch
@@ -357,8 +357,8 @@ MAIN_PAGE = Vue.component 'main-page',
 		update: ->
 
 			try
-#				res = await axios.get 'http://185.5.249.203:8080/getQueue'
-				res = await axios.get 'http://127.0.0.1:8080/getQueue'
+				res = await axios.get 'http://185.5.249.203:8080/getQueue'
+#				res = await axios.get 'http://127.0.0.1:8080/getQueue'
 				@queue = res.data
 
 			catch err

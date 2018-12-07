@@ -17,6 +17,11 @@ config =
 	sign: true
 
 
+FFFF = '0x10000000000'
+
+TABLE = 'records11c'
+
+
 eos = Eos(config)
 
 cron.schedule '7,20,30,50,58 * * * * *', =>
@@ -42,17 +47,42 @@ step = ->
 	tmp = await conn.execute "SELECT * FROM test.records WHERE write_flag=FALSE"
 
 	if tmp[0].length > 0
-		id = tmp[0][0].id
-		key = BigNumber tmp[0][0].user_id
+		sql_id = tmp[0][0].id
+
+		user_id = tmp[0][0].user_id
+		key = tmp[0][0].key
 		data = tmp[0][0].data
 
-		key = key.multipliedBy('4294967296').plus tmp[0][0].record_key
+		res = set_record user_id, key, data
 
-		contract = await eos.contract keys.ACCOUNT
-		res = await contract.setrecord keys.ACCOUNT, key.toString(), data, {authorization:[keys.ACCOUNT]}
-
-		res = await conn.execute "UPDATE test.records SET write_flag=TRUE WHERE id=#{id}"
+		res = await conn.execute "UPDATE test.records SET flag=#{res} WHERE id=#{sql_id}"
 
 	conn.close()
+
+
+set_record = (user_id, record_key, data)->
+
+	key = BigNumber(record_key).times 256
+
+	low = BigNumber(user_id).times(FFFF).plus key
+	up = low.plus 256
+
+	arr = await eos.getTableRows
+		code: keys.ACCOUNT
+		scope: keys.ACCOUNT
+		table: TABLE
+		json: true
+		lower_bound: low.toString()
+		upper_bound: up.toString()
+		limit: 255
+
+	return 1 if arr.rows.length > 255
+
+	key = low.plus arr.rows.length
+
+	contract = await eos.contract keys.ACCOUNT
+	res = await contract.setrecord keys.ACCOUNT, key.toString(), data, {authorization:[keys.ACCOUNT]}
+
+	return 2
 
 
