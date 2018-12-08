@@ -11,9 +11,9 @@ mysql = require 'mysql2/promise'
 BigNumber = require 'bignumber.js'
 
 
-DICT_TABLE = 'dict11a'
-RECORDS_TABLE = 'records11a'
-FFFF = '4294967296'
+TABLE = 'records11e'
+
+FFFF = '0x10000000000'
 MAX_BATCH = 128
 
 
@@ -62,11 +62,11 @@ app.post '/setRecord', (req, res)->
 		return if key is NaN or key < 0
 
 		user_id = parseInt req.body.user_id
-		return if user_id is NaN or user_id < 0
+		return if user_id is NaN or user_id < 0 or user_id >= 0xffffff
 
 		return unless req.body.data
 
-		return if req.body.data.length > 128
+		return if req.body.data.length > 255
 
 		conn = await mysql.createConnection
 			host:'127.0.0.1'
@@ -75,7 +75,7 @@ app.post '/setRecord', (req, res)->
 			database: 'test'
 
 		tmp = await conn.execute "INSERT INTO test.records (record_key, user_id, data, write_flag, blockchain)
-		VALUES(#{key}, #{user_id}, '#{req.body.data}', FALSE, 'a')"
+		VALUES(#{key}, #{user_id}, '#{req.body.data}', 0, 0)"
 
 		conn.close()
 
@@ -117,6 +117,8 @@ app.get '/getUserRecords', (req, res)->
 
 	try
 
+
+
 		user_id = parseInt req.query.user_id
 		start_key = parseInt req.query.start_key
 		limit = parseInt req.query.limit
@@ -125,7 +127,7 @@ app.get '/getUserRecords', (req, res)->
 			res.send {'error': 'wrong user id'}
 			return
 
-		if user_id < 0
+		if user_id < 0 or user_id >= 0xffffff
 			res.send {'error': 'wrong user id'}
 			return
 
@@ -137,39 +139,46 @@ app.get '/getUserRecords', (req, res)->
 
 		user_id = BigNumber user_id
 
-		low = user_id.times(FFFF).plus start_key
-		up = user_id.times(FFFF).plus '0x100000000'
+		low = user_id.times(FFFF).plus BigNumber(start_key).times(256)
+		up = user_id.times(FFFF).plus(FFFF).minus(1)
 
-		dict = await eos.getTableRows
+		log up.toString()
+
+		records = await eos.getTableRows
 			code: keys.ACCOUNT
 			scope: keys.ACCOUNT
-			table: DICT_TABLE
+			table: TABLE
 			json: true
 			lower_bound: low.toString()
 			upper_bound: up.toString()
-			limit: limit
+			limit: limit * 256
 
-		data = {more: dict.more, rows: []}
+		log records
 
-		for val in dict.rows
-			key = BigNumber val.key
+		rows = []
+		row = null
+		key = 0
 
-			key = key.mod '4294967295'
+		more = false
 
-			id = val.dict[val.dict.length - 1]
+		for val in records.rows
+			len = BigNumber val.key
+			if len.mod(256).eq(0)
+				if rows.length >= limit
+					more = true
+					break
+				row = val
+				key = len.mod(FFFF).idiv(256).toString()
+				row.history = 1
+				row.key = key
+				rows.push row
 
-			record = await eos.getTableRows
-				code: keys.ACCOUNT
-				scope: keys.ACCOUNT
-				table: RECORDS_TABLE
-				json: true
-				lower_bound: id
-				upper_bound: id + 1
-				limit: 1
+			else
+				row.history += 1
+				row.key = key
+				rows[rows.length - 1] = row
 
-			data.rows.push {key: key.toString(), data: record.rows[0].data}
-
-		res.send data
+		res.send {more, rows}
 
 	catch err
 		res.send {'error': 'server error'}
@@ -178,73 +187,49 @@ app.get '/getUserRecords', (req, res)->
 	return
 
 
+
 app.get '/getRecord', (req, res)->
 
 	try
 
 		user_id = parseInt req.query.user_id
-		key = parseInt req.query.key
+		record_key = parseInt req.query.key
 
 		if isNaN user_id
 			res.send {'error': 'wrong user id'}
 			return
 
-		if user_id < 0
+		if user_id < 0 or user_id >= 0xffffff
 			res.send {'error': 'wrong user id'}
 			return
 
-		if isNaN key
-			res.send {'error': 'wrong user id'}
+		if isNaN record_key
+			res.send {'error': 'wrong key'}
 			return
 
-		if key < 0
+		if record_key < 0
 			res.send {'error': 'wrong key'}
 			return
 
 		user_id = BigNumber user_id
 
-		low = user_id.times(FFFF).plus key
-		up = low.plus 1
+		low = user_id.times(FFFF).plus BigNumber(record_key).times(256)
+		up = low.plus 255
 
-		dict = await eos.getTableRows
+		records = await eos.getTableRows
 			code: keys.ACCOUNT
 			scope: keys.ACCOUNT
-			table: DICT_TABLE
+			table: TABLE
 			json: true
 			lower_bound: low.toString()
 			upper_bound: up.toString()
-			limit: 1
+			limit: 256
 
-		if dict.rows.length > 0
-			row = dict.rows[dict.rows.length - 1]
-
-			data = {more: dict.more, rows: []}
-
-			key = BigNumber row.key
-			key = key.mod FFFF
-
-			id = row.dict[row.dict.length - 1]
-
-			record = await eos.getTableRows
-				code: keys.ACCOUNT
-				scope: keys.ACCOUNT
-				table: RECORDS_TABLE
-				json: true
-				lower_bound: id
-				upper_bound: id + 1
-				limit: 1
-
-			data = {key: key.toString(), data: record.rows[0].data}
-
-
-		else
+		if records.rows.length is 0
 			res.send {'error': 'no data'}
-
 			return
 
-
-
-		res.send data
+		res.send {key: record_key, data: records.rows[records.rows.length - 1].data, history: records.rows.length}
 
 	catch err
 		res.send {'error': 'server error'}
@@ -258,69 +243,49 @@ app.get '/getRecordHistory', (req, res)->
 	try
 
 		user_id = parseInt req.query.user_id
-		key = parseInt req.query.key
+		record_key = parseInt req.query.key
 
 		if isNaN user_id
 			res.send {'error': 'wrong user id'}
 			return
 
-		if user_id < 0
+		if user_id < 0 or user_id >= 0xffffff
 			res.send {'error': 'wrong user id'}
 			return
 
-		if isNaN key
-			res.send {'error': 'wrong user id'}
+		if isNaN record_key
+			res.send {'error': 'wrong key'}
 			return
 
-		if key < 0
+		if record_key < 0
 			res.send {'error': 'wrong key'}
 			return
 
 		user_id = BigNumber user_id
 
-		low = user_id.times(FFFF).plus key
-		up = low.plus 1
+		low = user_id.times(FFFF).plus BigNumber(record_key).times(256)
+		up = low.plus 255
 
-		dict = await eos.getTableRows
+		records = await eos.getTableRows
 			code: keys.ACCOUNT
 			scope: keys.ACCOUNT
-			table: DICT_TABLE
+			table: TABLE
 			json: true
 			lower_bound: low.toString()
 			upper_bound: up.toString()
-			limit: 1
+			limit: 256
 
-		if dict.rows.length > 0
-			row = dict.rows[dict.rows.length - 1]
-
-			data = {more: dict.more, rows: []}
-
-			key = BigNumber row.key
-			key = key.mod FFFF
-
-			data = {data: []}
-
-			for id in row.dict
-				record = await eos.getTableRows
-					code: keys.ACCOUNT
-					scope: keys.ACCOUNT
-					table: RECORDS_TABLE
-					json: true
-					lower_bound: id
-					upper_bound: id + 1
-					limit: 1
-
-				data.data.push record.rows[0].data
-
-
-		else
+		if records.rows.length is 0
 			res.send {'error': 'no data'}
-
 			return
 
+		rows = []
 
+		for val in records.rows
+			val.key = record_key
+			rows.push val
 
-		res.send data
+		res.send {rows}
 
 	catch err
 		res.send {'error': 'server error'}
@@ -350,70 +315,54 @@ app.get '/getRecordsBatch', (req, res)->
 		for val in arr
 			val = parseInt val
 			if isNaN val
-				res.send {'error': 'wrong key1'}
+				res.send {'error': 'wrong key'}
 				return
 			if val < 0
-				res.send {'error': 'wrong key2'}
+				res.send {'error': 'wrong key'}
 				return
 			keys_arr.push val
+
 
 		if isNaN user_id
 			res.send {'error': 'wrong user id'}
 			return
 
-		if user_id < 0
+		if user_id < 0 or user_id >= 0xffffff
 			res.send {'error': 'wrong user id'}
 			return
 
 		user_id = BigNumber user_id
 
-		data = []
-		
-		for key in keys_arr
+		rows = []
 
-			low = user_id.times(FFFF).plus key
-			up = low.plus 1
-	
-			dict = await eos.getTableRows
+		for record_key in keys_arr
+
+			low = user_id.times(FFFF).plus BigNumber(record_key).times(256)
+			up = low.plus 255
+
+			records = await eos.getTableRows
 				code: keys.ACCOUNT
 				scope: keys.ACCOUNT
-				table: DICT_TABLE
+				table: TABLE
 				json: true
 				lower_bound: low.toString()
 				upper_bound: up.toString()
-				limit: 1
-	
-			if dict.rows.length > 0
-				row = dict.rows[dict.rows.length - 1]
-	
-				key = BigNumber row.key
-				key = key.mod FFFF
-	
-				id = row.dict[row.dict.length - 1]
-	
-				record = await eos.getTableRows
-					code: keys.ACCOUNT
-					scope: keys.ACCOUNT
-					table: RECORDS_TABLE
-					json: true
-					lower_bound: id
-					upper_bound: id + 1
-					limit: 1
-	
-				data.push {key: key.toString(), data: record.rows[0].data}
+				limit: 256
 
-			else
-
-				res.send {'error': 'no data for key ' + key}
+			if records.rows.length is 0
+				res.send {'error': 'no data'}
 				return
 
-		res.send data
+			rows.push {key: record_key, data: records.rows[records.rows.length - 1].data, history: records.rows.length}
+
+		res.send rows
 
 	catch err
 		res.send {'error': 'server error'}
 		log err
 
 	return
+
 
 
 

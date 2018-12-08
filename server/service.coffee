@@ -19,21 +19,21 @@ config =
 
 FFFF = '0x10000000000'
 
-TABLE = 'records11c'
+TABLE = 'records11e'
 
 
 eos = Eos(config)
 
-cron.schedule '7,20,30,50,58 * * * * *', =>
-
-	try
-		step()
-
-
-	catch err
-		log err
-
-	return
+#cron.schedule '7,20,30,50,58 * * * * *', =>
+#
+#	try
+#		step()
+#
+#
+#	catch err
+#		log err
+#
+#	return
 
 
 step = ->
@@ -86,3 +86,12 @@ set_record = (user_id, record_key, data)->
 	return 2
 
 
+#set_record(1, 1, 'user1 1 1')
+
+
+
+asd = {}
+
+asdasd = parseInt asd.asdasd
+
+log asdasd

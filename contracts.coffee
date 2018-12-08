@@ -5,6 +5,8 @@ keys = require './keys.js'
 Eos = require('eosjs');
 BigNumber = require 'bignumber.js'
 
+axios = require 'axios'
+
 
 config =
 	chainId: keys.CHAIN_ID
@@ -26,31 +28,20 @@ eos = Eos(config)
 #.catch (error)=>
 #	log error
 
-init = ->
 
-	try
-		contract = await eos.contract keys.ACCOUNT
-		res = await contract.setrecord keys.ACCOUNT, 1001, 'ASDASDASDASDASD2', {authorization:[keys.ACCOUNT]}
-		log res
-	catch err
-		log err
-
-
-init()
-
-user_id = 2
-skip = 0
-limit = 10
-
-user_id = BigNumber user_id
-
-low = user_id.times('0x10000000000').plus skip
-up = low.plus '0x10000000000'
-
-	user_id = user_id.plus(123)
-	log user_id.toString(16)[-8..]
-	user_id = user_id.dividedToIntegerBy '4294967296'
-	log user_id.toString()
+#user_id = 2
+#skip = 0
+#limit = 10
+#
+#user_id = BigNumber user_id
+#
+#low = user_id.times('0x10000000000').plus skip
+#up = low.plus '0x10000000000'
+#
+#	user_id = user_id.plus(123)
+#	log user_id.toString(16)[-8..]
+#	user_id = user_id.dividedToIntegerBy '4294967296'
+#	log user_id.toString()
 
 #eos.getTableRows
 #	code: keys.ACCOUNT
@@ -70,6 +61,40 @@ up = low.plus '0x10000000000'
 #		log actions
 #
 #scan()
+
+
+#get = ->
+#	res = await axios.get 'http://127.0.0.1:8080/getUserRecords',
+#		params:
+#			user_id: '0'
+#			start_key: '0'
+#			limit: 10
+#	log res.data
+
+get = ->
+	res = await axios.get 'http://127.0.0.1:8080/getUserRecords',
+		params:
+			user_id: '1'
+			key: '0'
+			limit: 2
+	log res.data
+
+
+get = ->
+	res = await axios.get 'http://127.0.0.1:8080/getRecordsBatch',
+		params:
+			user_id: '1'
+			keys: '0,1'
+	log res.data
+
+
+get()
+
+
+
+
+
+
 
 
 
