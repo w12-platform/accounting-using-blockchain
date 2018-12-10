@@ -42,17 +42,6 @@ app.use (req, res, next)->
 	next()
 
 
-#app.use (req, res, next)->
-#	res.status 404
-#	res.send 'Not found'
-#	return
-
-
-app.use (err, req, res, next)->
-	log (new Date).getTime(), err
-	res.status err.status || 500
-	res.send 'Internal error'
-	return
 
 
 app.post '/setRecord', (req, res)->
@@ -86,6 +75,13 @@ app.post '/setRecord', (req, res)->
 		log err
 
 	return
+
+
+
+
+
+
+
 
 
 app.get '/getQueue', (req, res)->
@@ -186,6 +182,8 @@ app.get '/getRecord', (req, res)->
 		user_id = parseInt req.query.user_id
 		record_key = parseInt req.query.key
 
+		if req.query.new_data and req.query.new_data is 'true' then new_date = true else new_data = false
+
 		if isNaN user_id
 			res.send {'error': 'wrong user id'}
 			return
@@ -220,7 +218,7 @@ app.get '/getRecord', (req, res)->
 			res.send {'error': 'no data'}
 			return
 
-		res.send {key: record_key, data: records.rows[records.rows.length - 1].data, history: records.rows.length}
+		res.send {key: record_key, data: records.rows[0].data, history: records.rows.length}
 
 	catch err
 		res.send {'error': 'server error'}
@@ -290,6 +288,8 @@ app.get '/getRecordsBatch', (req, res)->
 
 		user_id = parseInt req.query.user_id
 
+		if req.query.new_data and req.query.new_data is 'true' then new_date = true else new_data = false
+
 		unless req.query.keys
 			res.send {'error': 'wrong key'}
 			return
@@ -343,7 +343,7 @@ app.get '/getRecordsBatch', (req, res)->
 				res.send {'error': 'no data'}
 				return
 
-			rows.push {key: record_key, data: records.rows[records.rows.length - 1].data, history: records.rows.length}
+			rows.push {key: record_key, data: records.rows[0].data, history: records.rows.length}
 
 		res.send {rows}
 
@@ -351,6 +351,19 @@ app.get '/getRecordsBatch', (req, res)->
 		res.send {'error': 'server error'}
 		log err
 
+	return
+
+
+app.use (req, res, next)->
+	res.status 404
+	res.send 'Not found'
+	return
+
+
+app.use (err, req, res, next)->
+	log (new Date).getTime(), err
+	res.status err.status || 500
+	res.send 'Internal error'
 	return
 
 

@@ -280,7 +280,6 @@ MAIN_PAGE = Vue.component 'main-page',
 					key: @key
 					user_id: @user_id
 					data: @record
-				log res
 			catch err
 				log err
 			return
@@ -292,6 +291,8 @@ MAIN_PAGE = Vue.component 'main-page',
 					params:
 						user_id: @id_getuserrecords
 						start_key: @key_getuserrecords
+
+				log JSON.stringify(res.data)
 
 				@records_getuserrecords = res.data.rows
 
@@ -306,6 +307,8 @@ MAIN_PAGE = Vue.component 'main-page',
 					params:
 						user_id: @id_getrecord
 						key: @key_getrecord
+
+				log JSON.stringify(res.data)
 
 
 				@records_getrecord = "data:#{res.data.data}, history:#{res.data.history}"
@@ -323,6 +326,8 @@ MAIN_PAGE = Vue.component 'main-page',
 						user_id: @id_getrecordhistory
 						key: @key_getrecordhistory
 
+				log JSON.stringify(res.data)
+
 				@records_getrecordhistory = res.data.rows
 
 			catch err
@@ -337,6 +342,8 @@ MAIN_PAGE = Vue.component 'main-page',
 					params:
 						user_id: @id_getrecordsbatch
 						keys: @key_getrecordsbatch
+
+				log JSON.stringify(res.data)
 
 				@records_getrecordsbatch = res.data.rows
 
