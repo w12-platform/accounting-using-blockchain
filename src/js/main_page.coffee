@@ -1,5 +1,5 @@
 
-#ADDR = '127.0.0.1:8080'
+#ADDR = 'localhost:8080'
 ADDR = '185.5.249.203:8080'
 
 
@@ -133,7 +133,7 @@ MAIN_PAGE_COMPONENT =
 		<div class="sb3">
 			<b-field label="User id - 32 bit integer >= 0">
 				<b-input
-					v-model="id_getrecord"
+					v-model="id_getrecordhistory"
 					placeholder="123">
 				</b-input>
 			</b-field>
@@ -142,7 +142,7 @@ MAIN_PAGE_COMPONENT =
 		<div class="sb3">
 			<b-field label="Key - 32 bit integer >= 0, required">
 				<b-input
-					v-model="key_getrecord"
+					v-model="key_getrecordhistory"
 					placeholder="0">
 				</b-input>
 			</b-field>
@@ -219,7 +219,7 @@ MAIN_PAGE_COMPONENT =
 					<th>Record key</th>
 					<th>User Id</th>
 					<th>Data</th>
-					<th>Write flag</th>
+					<th>Write state</th>
 					<th>Blockchain</th>
 				</tr>
 			</thead>

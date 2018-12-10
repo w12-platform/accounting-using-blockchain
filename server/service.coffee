@@ -50,10 +50,10 @@ step = ->
 		sql_id = tmp[0][0].id
 
 		user_id = tmp[0][0].user_id
-		key = tmp[0][0].key
+		key = tmp[0][0].record_key
 		data = tmp[0][0].data
 
-		res = set_record user_id, key, data
+		res = await set_record user_id, key, data
 
 		res = await conn.execute "UPDATE #{keys.DATABASE}.records SET write_state=#{res} WHERE id=#{sql_id}"
 
