@@ -24,16 +24,16 @@ TABLE = 'records11e'
 
 eos = Eos(config)
 
-#cron.schedule '7,20,30,50,58 * * * * *', =>
-#
-#	try
-#		step()
-#
-#
-#	catch err
-#		log err
-#
-#	return
+cron.schedule '7,20,30,50,58 * * * * *', =>
+
+	try
+		step()
+
+
+	catch err
+		log err
+
+	return
 
 
 step = ->
@@ -42,9 +42,9 @@ step = ->
 		host:'127.0.0.1'
 		user: 'root'
 		password: keys.DB_PASSWORD
-		database: 'test'
+		database: keys.DATABASE
 
-	tmp = await conn.execute "SELECT * FROM test.records WHERE write_flag=FALSE"
+	tmp = await conn.execute "SELECT * FROM #{keys.DATABASE}.records WHERE write_state=0"
 
 	if tmp[0].length > 0
 		sql_id = tmp[0][0].id
@@ -55,7 +55,7 @@ step = ->
 
 		res = set_record user_id, key, data
 
-		res = await conn.execute "UPDATE test.records SET flag=#{res} WHERE id=#{sql_id}"
+		res = await conn.execute "UPDATE #{keys.DATABASE}.records SET write_state=#{res} WHERE id=#{sql_id}"
 
 	conn.close()
 
@@ -76,22 +76,11 @@ set_record = (user_id, record_key, data)->
 		upper_bound: up.toString()
 		limit: 255
 
-	return 1 if arr.rows.length > 255
+	return 2 if arr.rows.length > 255
 
 	key = low.plus arr.rows.length
 
 	contract = await eos.contract keys.ACCOUNT
 	res = await contract.setrecord keys.ACCOUNT, key.toString(), data, {authorization:[keys.ACCOUNT]}
 
-	return 2
-
-
-#set_record(1, 1, 'user1 1 1')
-
-
-
-asd = {}
-
-asdasd = parseInt asd.asdasd
-
-log asdasd
+	return 1
