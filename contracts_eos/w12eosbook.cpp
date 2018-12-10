@@ -14,7 +14,7 @@ class w12eosbook : public eosio::contract
 public:
 
 	w12eosbook(account_name self):eosio::contract(self),
-	records11e(_self, _self)
+	records11i(_self, _self)
 	{
 	}
 
@@ -22,12 +22,12 @@ public:
 	// @abi action
 	void setrecord(account_name user, const uint64_t key, const std::string& data)
 	{
-		auto it = records11e.find(key);
+		auto it = records11i.find(key);
 
-		if(it == records11e.end())
+		if(it == records11i.end())
 		{
 
-			records11e.emplace(user, [&](auto &item)
+			records11i.emplace(user, [&](auto &item)
 			{
 				item.key = key;
 				item.data = data;
@@ -37,7 +37,7 @@ public:
 
 private:
 
-	// @abi table records11e i64
+	// @abi table records11i i64
 	struct RecordStruct
 	{
 		uint64_t key;
@@ -46,16 +46,16 @@ private:
 		EOSLIB_SERIALIZE(RecordStruct, (key)(data))
 	};
 
-	typedef multi_index<N(records11e), RecordStruct> RecordsTable;
+	typedef multi_index<N(records11i), RecordStruct> RecordsTable;
 
-	RecordsTable records11e;
+	RecordsTable records11i;
 };
 
 EOSIO_ABI(w12eosbook, (setrecord))
 
 //private:
 //
-//// @abi table records11e i64
+//// @abi table records11i i64
 //struct RecordStruct
 //{
 //	uint64_t key;
@@ -80,7 +80,7 @@ EOSIO_ABI(w12eosbook, (setrecord))
 //> Records;
 //
 //
-//Records records11e;
+//Records records11i;
 //};
 
 //void setrecord(account_name user, const uint64_t key, const uint64_t basekey, const uint64_t len, const std::string& data)

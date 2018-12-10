@@ -19,7 +19,7 @@ config =
 
 FFFF = '0x10000000000'
 
-TABLE = 'records11e'
+TABLE = 'records11i'
 
 
 eos = Eos(config)
