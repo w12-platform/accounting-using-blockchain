@@ -125,9 +125,6 @@ MAIN_PAGE_COMPONENT =
 
 
 
-
-
-
 		<h3 class="title is-3 sa11">Get record history</h3>
 
 		<div class="sb3">

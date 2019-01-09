@@ -20,7 +20,7 @@ LAYOUT_COMPONENT =
 			</a>
 
 			<a class="navbar-item sr3" href="#/">
-				W12 EOS Book
+				W12 Accounting using blockchain
 			</a>
 
 			<div class="navbar-burger burger" data-target="navbar">

@@ -4,13 +4,10 @@ INFO_PAGE_COMPONENT =
 	<div class="container">
 	<div class="content">
 
-		<a href="https://en.wikipedia.org/wiki/Organizations_of_the_Dune_universe#CHOAM">
-			<h1>W12 EOS BOOK</h1>
-		</a>
 
-		<p>
-			Contract: asdasdasdasdasdasd
-		</p>
+		<h1>W12 Accounting using blockchain</h1>
+
+
 
 		</div>
 	</div>
