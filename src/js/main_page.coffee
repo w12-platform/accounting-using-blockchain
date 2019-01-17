@@ -1,6 +1,6 @@
 
-#ADDR = 'localhost:8080'
-ADDR = '185.5.249.203:8080'
+#ADDR = 'localhost:8888'
+ADDR = '95.213.229.86:8888'
 
 
 MAIN_PAGE_COMPONENT =

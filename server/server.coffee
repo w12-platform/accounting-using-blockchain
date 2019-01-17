@@ -1,5 +1,4 @@
 [log, to_fix] = require '../src/js/lib'
-_ = require 'lodash'
 express = require 'express'
 
 keys = require '../keys.js'
@@ -58,7 +57,7 @@ app.post '/setRecord', (req, res)->
 		return if req.body.data.length > 255
 
 		conn = await mysql.createConnection
-			host:'127.0.0.1'
+			host: process.env.DATA_PORT_3306_TCP_ADDR || '127.0.0.1'
 			user: 'root'
 			password: keys.DB_PASSWORD
 			database: keys.DATABASE
@@ -89,7 +88,7 @@ app.get '/getQueue', (req, res)->
 	try
 
 		conn = await mysql.createConnection
-			host:'127.0.0.1'
+			host: process.env.DATA_PORT_3306_TCP_ADDR || '127.0.0.1'
 			user: 'root'
 			password: keys.DB_PASSWORD
 			database: keys.DATABASE

@@ -39,7 +39,7 @@ cron.schedule '7,20,30,50,58 * * * * *', =>
 step = ->
 
 	conn = await mysql.createConnection
-		host:'127.0.0.1'
+		host: process.env.DATA_PORT_3306_TCP_ADDR || '127.0.0.1'
 		user: 'root'
 		password: keys.DB_PASSWORD
 		database: keys.DATABASE
