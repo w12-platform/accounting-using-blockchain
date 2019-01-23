@@ -57,7 +57,7 @@ app.post '/setRecord', (req, res)->
 		return if req.body.data.length > 255
 
 		conn = await mysql.createConnection
-			host: process.env.DATA_PORT_3306_TCP_ADDR || '127.0.0.1'
+			host: 'acc_database_cnt'
 			user: 'root'
 			password: keys.DB_PASSWORD
 			database: keys.DATABASE
@@ -88,7 +88,7 @@ app.get '/getQueue', (req, res)->
 	try
 
 		conn = await mysql.createConnection
-			host: process.env.DATA_PORT_3306_TCP_ADDR || '127.0.0.1'
+			host: 'acc_database_cnt'
 			user: 'root'
 			password: keys.DB_PASSWORD
 			database: keys.DATABASE

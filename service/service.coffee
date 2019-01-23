@@ -24,25 +24,44 @@ TABLE = 'records11i'
 
 eos = Eos(config)
 
-cron.schedule '7,20,30,50,58 * * * * *', =>
 
-	try
-		step()
+conn = null
 
 
-	catch err
-		log err
+delay = (ms)->
+	return new Promise (resolve, reject)=>
+		setTimeout resolve, ms
+
+
+connect = ->
+
+	await delay 55000
+
+	conn = await mysql.createConnection
+		host: 'acc_database_cnt'
+		user: 'root'
+		password: keys.DB_PASSWORD
+		database: keys.DATABASE
+
+
+	cron.schedule '7,20,30,50,58 * * * * *', =>
+
+		try
+			step()
+
+
+		catch err
+			log err
+
+		return
 
 	return
 
 
-step = ->
+connect()
 
-	conn = await mysql.createConnection
-		host: process.env.DATA_PORT_3306_TCP_ADDR || '127.0.0.1'
-		user: 'root'
-		password: keys.DB_PASSWORD
-		database: keys.DATABASE
+
+step = ->
 
 	tmp = await conn.execute "SELECT * FROM #{keys.DATABASE}.records WHERE write_state=0"
 
@@ -57,7 +76,7 @@ step = ->
 
 		res = await conn.execute "UPDATE #{keys.DATABASE}.records SET write_state=#{res} WHERE id=#{sql_id}"
 
-	conn.close()
+	return
 
 
 set_record = (user_id, record_key, data)->

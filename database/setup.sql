@@ -8,3 +8,4 @@ CREATE TABLE records(
 	PRIMARY KEY(`id`)
 );
 ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123';
+GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY '123';
