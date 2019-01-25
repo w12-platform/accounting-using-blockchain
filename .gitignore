@@ -14,6 +14,7 @@
 /src/js/lib.js.map
 /src/js/layout.js
 /src/js/layout.js.map
+/src/js/keys_web.js
 /contracts.js
 /contracts.js.map
 /faviconData.json
@@ -29,3 +30,4 @@
 /contracts_eos/.keep
 /service/service.js.map
 /service/service.js
+
