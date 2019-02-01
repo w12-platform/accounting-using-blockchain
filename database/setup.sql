@@ -7,5 +7,5 @@ CREATE TABLE records(
 	`blockchain` TINYINT UNSIGNED ZEROFILL NOT NULL,
 	PRIMARY KEY(`id`)
 );
-ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123';
-GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY '123';
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '78DnW946U9r726oBuga6';
+GRANT ALL ON *.* to 'root'@'%' IDENTIFIED BY '78DnW946U9r726oBuga6';

@@ -1,5 +1,7 @@
 [log, to_fix] = require '../src/js/lib'
 express = require 'express'
+bodyParser = require 'body-parser'
+
 
 keys = require '../keys.js'
 
@@ -14,6 +16,9 @@ TABLE = 'records11i'
 
 FFFF = '0x10000000000'
 MAX_BATCH = 128
+
+HOST = 'acc_database_cnt'
+#HOST = '127.0.0.1'
 
 
 config =
@@ -34,6 +39,8 @@ app.use express.static '../'
 app.use express.static '../src'
 app.use express.static '../dist'
 app.use express.json()
+app.use bodyParser.urlencoded({extended: true})
+
 
 app.use (req, res, next)->
 	res.header 'Access-Control-Allow-Origin', '*'
@@ -47,17 +54,28 @@ app.post '/setRecord', (req, res)->
 
 	try
 		key = parseInt req.body.key
-		return if key is NaN or key < 0
+		if isNaN(key) or key < 0 or key is null
+			res.send {'error': 'wrong key'}
+			log JSON.stringify(req.body)
+			return
 
 		user_id = parseInt req.body.user_id
-		return if user_id is NaN or user_id < 0 or user_id >= 0xffffff
+		if isNaN(user_id) or user_id < 0 or user_id >= 0xffffff or user_id is null
+			res.send {'error': 'wrong user_id'}
+			log JSON.stringify(req.body)
+			return
 
-		return unless req.body.data
+		unless req.body.data
+			res.send {'error': 'wrond data'}
+			log JSON.stringify(req.body)
+			return
 
-		return if req.body.data.length > 255
+		if req.body.data.length > 255
+			res.send {'error': 'wrond data length'}
+			return
 
 		conn = await mysql.createConnection
-			host: 'acc_database_cnt'
+			host: HOST
 			user: 'root'
 			password: keys.DB_PASSWORD
 			database: keys.DATABASE
@@ -76,19 +94,12 @@ app.post '/setRecord', (req, res)->
 	return
 
 
-
-
-
-
-
-
-
 app.get '/getQueue', (req, res)->
 
 	try
 
 		conn = await mysql.createConnection
-			host: 'acc_database_cnt'
+			host: HOST
 			user: 'root'
 			password: keys.DB_PASSWORD
 			database: keys.DATABASE
