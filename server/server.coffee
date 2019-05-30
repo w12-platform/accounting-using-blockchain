@@ -12,7 +12,7 @@ mysql = require 'mysql2/promise'
 BigNumber = require 'bignumber.js'
 
 
-TABLE = 'records11i'
+TABLE = 'record'
 
 FFFF = '0x10000000000'
 MAX_BATCH = 128
@@ -80,8 +80,8 @@ app.post '/setRecord', (req, res)->
 			password: keys.DB_PASSWORD
 			database: keys.DATABASE
 
-		tmp = await conn.execute "INSERT INTO #{keys.DATABASE}.records (record_key, user_id, data, write_state, blockchain)
-		VALUES(#{key}, #{user_id}, '#{req.body.data}', 0, 0)"
+		tmp = await conn.execute "INSERT INTO #{keys.DATABASE}.records (record_key, user_id, data, write_state, blockchain, trx_id)
+		VALUES(#{key}, #{user_id}, '#{req.body.data}', 0, 0, '')"
 
 		conn.close()
 
@@ -109,6 +109,45 @@ app.get '/getQueue', (req, res)->
 		conn.close()
 
 		res.send tmp[0]
+
+	catch err
+		res.send {'error': 'server error'}
+		log err
+
+	return
+
+
+app.get '/getRecordQueue', (req, res)->
+
+	try
+
+		record_key = parseInt req.query.key
+
+		if isNaN record_key
+			res.send {'error': 'wrong key'}
+			return
+
+		user_id = parseInt req.query.user_id
+
+		if isNaN user_id
+			res.send {'error': 'wrong user_id'}
+			return
+
+		if user_id < 0 or user_id >= 0xffffff
+			res.send {'error': 'wrong user id'}
+			return
+
+		conn = await mysql.createConnection
+			host: HOST
+			user: 'root'
+			password: keys.DB_PASSWORD
+			database: keys.DATABASE
+
+		tmp = await conn.execute "SELECT * FROM #{keys.DATABASE}.records WHERE record_key=#{record_key} and user_id=#{user_id}"
+
+		conn.close()
+
+		if tmp.length then res.send {rows: tmp[0]} else res.send {'error': 'no data'}
 
 	catch err
 		res.send {'error': 'server error'}

@@ -115,10 +115,7 @@ MAIN_PAGE_COMPONENT =
 
 		<button class="button is-primary sb3" @click="get_record()">Get record</button>
 
-
 		<h3 class="title is-3">Record {{records_getrecord}}</h3>
-
-
 
 		<h3 class="title is-3 sa11">Get record history</h3>
 
@@ -202,6 +199,25 @@ MAIN_PAGE_COMPONENT =
 			</tbody>
 		</table>
 
+		<h3 class="title is-3">Record queue</h3>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Key</th>
+					<th>Data</th>
+					<th>History</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="val in records_getrecordsbatch"
+					class="table-item">
+					<td>{{val.key}}</td>
+					<td>{{val.data}}</td>
+					<td>{{val.history}}</td>
+				</tr>
+			</tbody>
+		</table>
+
 		<h3 class="title is-3 sa11">SQL Database</h3>
 
 		<table class="table">
@@ -213,6 +229,7 @@ MAIN_PAGE_COMPONENT =
 					<th>Data</th>
 					<th>Write state</th>
 					<th>Blockchain</th>
+					<th>Trx Id</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -224,9 +241,60 @@ MAIN_PAGE_COMPONENT =
 					<td>{{val.data}}</td>
 					<td>{{val.write_state}}</td>
 					<td>{{val.blockchain}}</td>
-				</tr>
+					<td>{{val.trx_id}}</td>
+					</tr>
 			</tbody>
 		</table>
+
+		<h3 class="title is-3 sa11">Get record queue</h3>
+
+		<div class="sb3">
+			<b-field label="User id - 32 bit integer >= 0">
+				<b-input
+					v-model="id_getrecordqueue"
+					placeholder="123">
+				</b-input>
+			</b-field>
+		</div>
+
+		<div class="sb3">
+			<b-field label="Key - 32 bit integer >= 0, required">
+				<b-input
+					v-model="key_getrecordqueue"
+					placeholder="0">
+				</b-input>
+			</b-field>
+		</div>
+
+		<button class="button is-primary sb3" @click="get_record_queue()">Get record queue</button>
+
+		<h3 class="title is-3 sa11">Record queue</h3>
+
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Record key</th>
+					<th>User Id</th>
+					<th>Data</th>
+					<th>Blockchain</th>
+					<th>Trx Id</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr v-for="val in record_getrecordqueue"
+					class="table-tiem">
+					<td>{{val.id}}</td>
+					<td>{{val.record_key}}</td>
+					<td>{{val.user_id}}</td>
+					<td>{{val.data}}</td>
+					<td>{{val.blockchain}}</td>
+					<td>{{val.trx_id}}</td>
+					</tr>
+			</tbody>
+		</table>
+
+
 
 	</div>
 
@@ -254,6 +322,9 @@ MAIN_PAGE = Vue.component 'main-page',
 		id_getrecordsbatch: 0
 		records_getrecordsbatch: []
 		queue: []
+		key_getrecordqueue: 0
+		id_getrecordqueue: 0
+		record_getrecordqueue: []
 
 
 	created: ->
@@ -346,6 +417,21 @@ MAIN_PAGE = Vue.component 'main-page',
 			return
 
 
+		get_record_queue: ->
+			try
+				res = await axios.get "http://#{ADDR}/getRecordQueue",
+					params:
+						user_id: @id_getrecordqueue
+						key: @key_getrecordqueue
+
+				log JSON.stringify(res.data)
+
+				@record_getrecordqueue = res.data.rows
+
+			catch err
+				log err
+
+			return
 
 
 		update: ->

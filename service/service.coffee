@@ -19,7 +19,7 @@ config =
 
 FFFF = '0x10000000000'
 
-TABLE = 'records11i'
+TABLE = 'record'
 
 
 eos = Eos(config)
@@ -74,7 +74,8 @@ step = ->
 
 		res = await set_record user_id, key, data
 
-		res = await conn.execute "UPDATE #{keys.DATABASE}.records SET write_state=#{res} WHERE id=#{sql_id}"
+		if res?.transaction_id
+			res = await conn.execute "UPDATE #{keys.DATABASE}.records SET write_state=#{1}, trx_id=\"#{res.transaction_id}\" WHERE id=#{sql_id}"
 
 	return
 
@@ -100,6 +101,10 @@ set_record = (user_id, record_key, data)->
 	key = low.plus arr.rows.length
 
 	contract = await eos.contract keys.ACCOUNT
-	res = await contract.setrecord keys.ACCOUNT, key.toString(), data, {authorization:[keys.ACCOUNT]}
 
-	return 1
+	try
+		res = await contract.setrecord keys.ACCOUNT, key.toString(), data, {authorization:[keys.ACCOUNT]}
+	catch err
+		res = err
+
+	return res

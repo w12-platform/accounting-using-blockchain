@@ -10,7 +10,8 @@ CREATE TABLE accounting.records(
 	`user_id` MEDIUMINT UNSIGNED NOT NULL,  
 	`data` VARCHAR(255) NOT NULL,  
 	`write_state` TINYINT UNSIGNED ZEROFILL NOT NULL,  
-	`blockchain` TINYINT UNSIGNED ZEROFILL NOT NULL,  
+	`blockchain` TINYINT UNSIGNED ZEROFILL NOT NULL,
+	`trx_id` VARCHAR(255) NOT NULL,  
 	PRIMARY KEY(`id`)  
 );
 
@@ -119,3 +120,26 @@ CREATE TABLE accounting.records(
 
 ##### пример ответа:
 {"rows":[{"key":0,"data":"user1 0","history":1},{"key":1,"data":"user1 1 1","history":2}]}
+
+
+
+
+
+##### getRecordQueue
+
+Возвращает историю изменений записи из таблицы очереди - только для записанных в блокчейн записей с указанием
+хешей транзакций.
+
+##### параметры:
+*user_id* - id пользователя, положительное целое чило 24 бита  
+*key* - ключ, положительное целое число 32 бита  
+
+
+##### поля ответа:
+*rows* - массив строк данных - одна строка - одна запись истории
+
+##### пример ответа:
+{"rows":[{"id":1,"record_key":577,"user_id":1,"data":"asdasdasd 577","write_state":1,"blockchain":0,
+"trx_id":"3de4abb25706553faa14c34c2dc5205435688fc13dda9e5189e15d58caace2a5"},
+{"id":2,"record_key":577,"user_id":1,"data":"asdasdasd 577 1","write_state":1,"blockchain":0,
+"trx_id":"336276cc34e92e80d2b6956bcd033dc3b255b844891321b213076b1db8f7e2b3"}]}

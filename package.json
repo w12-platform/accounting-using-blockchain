@@ -21,6 +21,7 @@
     "eosjs": "16.0.9",
     "express": "4.16.2",
     "humanize-duration": "^3.15.1",
+    "infeos": "^0.1.33",
     "lodash": "^4.17.4",
     "mysql2": "1.6.4",
     "node-cron": "2.0.3",
