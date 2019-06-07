@@ -78,6 +78,7 @@ MAIN_PAGE_COMPONENT =
 					<th>Key</th>
 					<th>Data</th>
 					<th>History</th>
+					<th>Blockchain key</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -86,6 +87,7 @@ MAIN_PAGE_COMPONENT =
 					<td>{{val.key}}</td>
 					<td>{{val.data}}</td>
 					<td>{{val.history}}</td>
+					<td>{{val.bc_key}}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -187,6 +189,7 @@ MAIN_PAGE_COMPONENT =
 					<th>Key</th>
 					<th>Data</th>
 					<th>History</th>
+					<th>Blockchain key</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -195,25 +198,7 @@ MAIN_PAGE_COMPONENT =
 					<td>{{val.key}}</td>
 					<td>{{val.data}}</td>
 					<td>{{val.history}}</td>
-				</tr>
-			</tbody>
-		</table>
-
-		<h3 class="title is-3">Record queue</h3>
-		<table class="table">
-			<thead>
-				<tr>
-					<th>Key</th>
-					<th>Data</th>
-					<th>History</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr v-for="val in records_getrecordsbatch"
-					class="table-item">
-					<td>{{val.key}}</td>
-					<td>{{val.data}}</td>
-					<td>{{val.history}}</td>
+					<td>{{val.bc_key}}</td>
 				</tr>
 			</tbody>
 		</table>
@@ -230,6 +215,7 @@ MAIN_PAGE_COMPONENT =
 					<th>Write state</th>
 					<th>Blockchain</th>
 					<th>Trx Id</th>
+					<th>Blockchain key</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -242,6 +228,7 @@ MAIN_PAGE_COMPONENT =
 					<td>{{val.write_state}}</td>
 					<td>{{val.blockchain}}</td>
 					<td>{{val.trx_id}}</td>
+					<td>{{val.bc_key}}</td>
 					</tr>
 			</tbody>
 		</table>
@@ -279,6 +266,7 @@ MAIN_PAGE_COMPONENT =
 					<th>Data</th>
 					<th>Blockchain</th>
 					<th>Trx Id</th>
+					<th>Blockchain key</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -290,12 +278,10 @@ MAIN_PAGE_COMPONENT =
 					<td>{{val.data}}</td>
 					<td>{{val.blockchain}}</td>
 					<td>{{val.trx_id}}</td>
+					<td>{{val.bc_key}}</td>
 					</tr>
 			</tbody>
 		</table>
-
-
-
 	</div>
 
 </div>
@@ -375,7 +361,7 @@ MAIN_PAGE = Vue.component 'main-page',
 				log JSON.stringify(res.data)
 
 
-				@records_getrecord = "data:#{res.data.data}, history:#{res.data.history}"
+				@records_getrecord = "data:#{res.data.data}, history:#{res.data.history}, bc_key:#{res.data.bc_key}"
 
 			catch err
 				log err

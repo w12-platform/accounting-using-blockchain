@@ -5,24 +5,20 @@ services:
     image: acc_service:latest
     restart: always
     links:
-      - acc_database_cnt:data
+    - acc_database_cnt:data
     networks:
       lan:
         ipv4_address: 172.16.5.2
-    depends_on:
-      - acc_database_cnt
   acc_server_cnt:
     container_name: acc_server_cnt
     image: acc_server:latest
     restart: always
     links:
-      - acc_database_cnt:data
+    - acc_database_cnt:data
     ports: ['8888:8080']
     networks:
       lan:
         ipv4_address: 172.16.5.3
-    depends_on:
-      - acc_database_cnt
   acc_database_cnt:
     container_name: acc_database_cnt
     image: acc_database:latest
@@ -35,7 +31,6 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.16.5.0/28
+      - subnet: 172.16.5.0/28
     driver_opts:
       com.docker.network.bridge.name: "br-acc"
-

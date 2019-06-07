@@ -11,7 +11,8 @@ CREATE TABLE accounting.records(
 	`data` VARCHAR(255) NOT NULL,  
 	`write_state` TINYINT UNSIGNED ZEROFILL NOT NULL,  
 	`blockchain` TINYINT UNSIGNED ZEROFILL NOT NULL,
-	`trx_id` VARCHAR(255) NOT NULL,  
+	`trx_id` VARCHAR(255) NOT NULL,
+	`bc_key` VARCHAR(255) NOT NULL,  
 	PRIMARY KEY(`id`)  
 );
 
@@ -53,10 +54,11 @@ CREATE TABLE accounting.records(
 *rows* - массив строк данных - одна строка - запись по ключу   
 *key* - ключ данных  
 *data* - данные  
-*history* - количество записей по ключу - более одного - были исправления  
+*history* - количество записей по ключу - более одного - были исправления
+*bc_key* - ключ данных в блокчейне  
 
 ##### пример ответа:
-*{"more":false,"rows":[{"key":"0","data":"user0 0","history":3}]}*
+*{"more":false,"rows":[{"key":"15","data":"asdasdasd15","history":1,"bc_key":"1099511631616"},{"key":"17","data":"asdasdasd17","history":1,"bc_key":"1099511632128"}]}*
 
 
 
@@ -72,10 +74,10 @@ CREATE TABLE accounting.records(
 *key* - ключ данных  
 *data* - данные  
 *history* - количество записей по ключу - более одного - были исправления
-
+*bc_key* - ключ данных в блокчейне
 
 ##### пример ответа:
-{"key":0,"data":"user0 0 2","history":3}
+{"key":1,"data":"asdasdasd12","history":1,"bc_key":"1099511628032"}
 
 
 
@@ -88,13 +90,13 @@ CREATE TABLE accounting.records(
 
 ##### параметры:
 *user_id* - id пользователя, положительное целое чило 24 бита  
-*key* - ключ, положительное целое число 32 бита  
+*key* - ключ, положительное целое число 32 бита
 
 ##### поля ответа:
-*rows* - массив строк данных - одна строка - одна запись истории
+*rows* - массив строк данных - одна строка - одна запись истории которая содержит данные и ключ данных в блокчейне
 
 ##### пример ответа:
-{"rows":["user0 0","user0 0 1","user0 0 2"]}
+{"rows":[{"data":"asdasdasd5","bc_key":"1099511629056"}]}
 
 
 
@@ -116,10 +118,10 @@ CREATE TABLE accounting.records(
 *key* - ключ данных  
 *data* - данные  
 *history* - количество записей по ключу - более одного - были исправления  
-
+*bc_key* - ключ данных в блокчейне
 
 ##### пример ответа:
-{"rows":[{"key":0,"data":"user1 0","history":1},{"key":1,"data":"user1 1 1","history":2}]}
+{"rows":[{"key":5,"data":"asdasdasd5","history":1,"bc_key":"1099511629056"},{"key":7,"data":"asdasdasd7","history":1,"bc_key":"1099511629568"}]}
 
 
 
@@ -132,14 +134,18 @@ CREATE TABLE accounting.records(
 
 ##### параметры:
 *user_id* - id пользователя, положительное целое чило 24 бита  
-*key* - ключ, положительное целое число 32 бита  
-
+*key* - ключ, положительное целое число 32 бита
+  
 
 ##### поля ответа:
 *rows* - массив строк данных - одна строка - одна запись истории
+*record_key* - ключ данных
+*user_id* - идинтификатор пользователя  
+*data* - данные
+*write_state* - состояние записи в блокчейн 0 - ожидает записи 1 - записано
+*blockchain* - тип блокчейна 0 - EOS
+*trx_id* - хеш транзакции
+*bc_key* - ключ данных в блокчейне
 
 ##### пример ответа:
-{"rows":[{"id":1,"record_key":577,"user_id":1,"data":"asdasdasd 577","write_state":1,"blockchain":0,
-"trx_id":"3de4abb25706553faa14c34c2dc5205435688fc13dda9e5189e15d58caace2a5"},
-{"id":2,"record_key":577,"user_id":1,"data":"asdasdasd 577 1","write_state":1,"blockchain":0,
-"trx_id":"336276cc34e92e80d2b6956bcd033dc3b255b844891321b213076b1db8f7e2b3"}]}
+{"rows":[{"id":1,"record_key":17,"user_id":1,"data":"asdasdasd17","write_state":1,"blockchain":0,"trx_id":"5a8555156bce563ff5d9f839c758d89e42f20702a6a7951c2cee26de47af603a","bc_key":"1099511632128"}]}

@@ -6,6 +6,7 @@ CREATE TABLE records(
 	`write_state` TINYINT UNSIGNED ZEROFILL NOT NULL,
 	`blockchain` TINYINT UNSIGNED ZEROFILL NOT NULL,
 	`trx_id` VARCHAR(255) NOT NULL,
+	`bc_key` VARCHAR(255) NOT NULL,
 	PRIMARY KEY(`id`)
 );
 ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '78DnW946U9r726oBuga6';

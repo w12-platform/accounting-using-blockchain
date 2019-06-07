@@ -80,8 +80,8 @@ app.post '/setRecord', (req, res)->
 			password: keys.DB_PASSWORD
 			database: keys.DATABASE
 
-		tmp = await conn.execute "INSERT INTO #{keys.DATABASE}.records (record_key, user_id, data, write_state, blockchain, trx_id)
-		VALUES(#{key}, #{user_id}, '#{req.body.data}', 0, 0, '')"
+		tmp = await conn.execute "INSERT INTO #{keys.DATABASE}.records (record_key, user_id, data, write_state, blockchain, trx_id, bc_key)
+		VALUES(#{key}, #{user_id}, '#{req.body.data}', 0, 0, '', '')"
 
 		conn.close()
 
@@ -156,6 +156,46 @@ app.get '/getRecordQueue', (req, res)->
 	return
 
 
+app.get '/getBcKey', (req, res)->
+
+	try
+
+		user_id = parseInt req.query.user_id
+		record_key = parseInt req.query.key
+
+		if isNaN user_id
+			res.send {'error': 'wrong user id'}
+			return
+
+		if user_id < 0 or user_id >= 0xffffff
+			res.send {'error': 'wrong user id'}
+			return
+
+		if isNaN record_key
+			res.send {'error': 'wrong key'}
+			return
+
+		if record_key < 0
+			res.send {'error': 'wrong key'}
+			return
+
+		user_id = BigNumber user_id
+
+		low = user_id.times(FFFF).plus BigNumber(record_key).times(256)
+
+		if records.rows.length is 0
+			res.send {'error': 'no data'}
+			return
+
+		res.send {bc_key: low.toString()}
+
+	catch err
+		res.send {'error': 'server error'}
+		log err
+
+	return
+
+
 app.get '/getUserRecords', (req, res)->
 
 	try
@@ -208,11 +248,13 @@ app.get '/getUserRecords', (req, res)->
 				key = len.mod(FFFF).idiv(256).toString()
 				row.history = 1
 				row.key = key
+				row.bc_key = len
 				rows.push row
 
 			else
 				row.history += 1
 				row.key = key
+				row.bc_key = len + row.history
 				rows[rows.length - 1] = row
 
 		res.send {more, rows}
@@ -267,7 +309,7 @@ app.get '/getRecord', (req, res)->
 			res.send {'error': 'no data'}
 			return
 
-		res.send {key: record_key, data: records.rows[0].data, history: records.rows.length}
+		res.send {key: record_key, data: records.rows[0].data, history: records.rows.length, bc_key: low.toString()}
 
 	catch err
 		res.send {'error': 'server error'}
@@ -320,7 +362,8 @@ app.get '/getRecordHistory', (req, res)->
 		rows = []
 
 		for val in records.rows
-			rows.push val.data
+			rows.push {data: val.data, bc_key: low.toString()}
+			low = low.plus 1
 
 		res.send {rows}
 
@@ -392,7 +435,7 @@ app.get '/getRecordsBatch', (req, res)->
 				res.send {'error': 'no data'}
 				return
 
-			rows.push {key: record_key, data: records.rows[0].data, history: records.rows.length}
+			rows.push {key: record_key, data: records.rows[0].data, history: records.rows.length, bc_key: low.toString()}
 
 		res.send {rows}
 

@@ -72,10 +72,10 @@ step = ->
 		key = tmp[0][0].record_key
 		data = tmp[0][0].data
 
-		res = await set_record user_id, key, data
+		[res, bc_key] = await set_record user_id, key, data
 
 		if res?.transaction_id
-			res = await conn.execute "UPDATE #{keys.DATABASE}.records SET write_state=#{1}, trx_id=\"#{res.transaction_id}\" WHERE id=#{sql_id}"
+			res = await conn.execute "UPDATE #{keys.DATABASE}.records SET write_state=#{1}, trx_id=\"#{res.transaction_id}\", bc_key=\"#{bc_key}\" WHERE id=#{sql_id}"
 
 	return
 
@@ -96,7 +96,7 @@ set_record = (user_id, record_key, data)->
 		upper_bound: up.toString()
 		limit: 255
 
-	return 2 if arr.rows.length > 255
+	return [2, null] if arr.rows.length > 255
 
 	key = low.plus arr.rows.length
 
@@ -107,4 +107,4 @@ set_record = (user_id, record_key, data)->
 	catch err
 		res = err
 
-	return res
+	return [res, key.toString()]
